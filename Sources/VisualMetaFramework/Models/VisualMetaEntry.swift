@@ -10,11 +10,11 @@ import Foundation
 /// Object after "@{"
 public struct VisualMetaEntry {
     
-    let kind    : String
-    let content : [String: Any]
-    let rawValue: String
+    public let kind    : String
+    public let content : [String: Any]
+    public let rawValue: String
     
-    var isBibTeX: Bool {
+    public var isBibTeX: Bool {
         kind == "article" ||
         kind == "book" ||
         kind == "booklet" ||
@@ -32,12 +32,17 @@ public struct VisualMetaEntry {
         kind == "unpublished"
     }
     
-    var isHeadingsJSON: Bool { kind == "headings" }
+    public var isHeadingsJSON: Bool { kind == "headings" }
     
-    var isGlossaryJSON: Bool { kind == "glossary" }
+    public var isGlossaryJSON: Bool { kind == "glossary" }
     
-    var isContributingAuthors: Bool { kind == "contributing-authors" }
+    public var isContributingAuthors: Bool { kind == "contributing-authors" }
     
-    var isVisualMeta: Bool { kind == "visual-meta" }
+    public var isVisualMeta: Bool { kind == "visual-meta" }
     
+    public init(kind: String, content: [String : Any], rawValue: String) {
+        self.kind = kind
+        self.content = content
+        self.rawValue = rawValue
+    }
 }

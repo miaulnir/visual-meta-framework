@@ -2,15 +2,15 @@ import Foundation
 
 public struct References {
     private let referenceEntries: [String : ReferenceEntry]
-    let labelAttributedString   : NSAttributedString
+    public let labelAttributedString   : NSAttributedString
     
-    init(with referenceEntries: [String : ReferenceEntry],
-         labelAttributedString: NSAttributedString) {
+    public init(with referenceEntries: [String : ReferenceEntry],
+                labelAttributedString: NSAttributedString) {
         self.referenceEntries      = referenceEntries
         self.labelAttributedString = labelAttributedString
     }
     
-    func referenceEntry(with identifier: String) -> ReferenceEntry? {
+    public func referenceEntry(with identifier: String) -> ReferenceEntry? {
         return referenceEntries[identifier]
     }
     
@@ -18,21 +18,21 @@ public struct References {
 
 public struct ReferenceEntry {
     
-    let identifier: String
-    let content   : NSAttributedString
-    let filename  : String?
-    let title     : String?
-    let urlString : String?
-    let quote     : String?
-    let pageIndex : Int?
+    public let identifier: String
+    public let content   : NSAttributedString
+    public let filename  : String?
+    public let title     : String?
+    public let urlString : String?
+    public let quote     : String?
+    public let pageIndex : Int?
     
-    init (identifier: String,
-          content: NSAttributedString,
-          filename: String? = nil,
-          title: String? = nil,
-          urlString: String? = nil,
-          quote: String? = nil,
-          pageIndex: Int? = nil) {
+    public init (identifier: String,
+                 content: NSAttributedString,
+                 filename: String? = nil,
+                 title: String? = nil,
+                 urlString: String? = nil,
+                 quote: String? = nil,
+                 pageIndex: Int? = nil) {
         self.identifier = identifier
         self.content    = content
         self.filename   = filename

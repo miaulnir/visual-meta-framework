@@ -6,14 +6,14 @@ import UIKit
 #endif
 
 public struct Glossary {
+
+    public let entries: [GlossaryEntry]
     
-    init(with glossaryEntries: [GlossaryEntry]) {
+    public init(with glossaryEntries: [GlossaryEntry]) {
         self.entries = glossaryEntries
     }
     
-    let entries: [GlossaryEntry]
-    
-    func glossaryEntry(with phrase: String) -> GlossaryEntry? {
+    public func glossaryEntry(with phrase: String) -> GlossaryEntry? {
         for entry in entries {
             if entry.lowercasedPhrases.contains(phrase.lowercased()) {
                 return entry

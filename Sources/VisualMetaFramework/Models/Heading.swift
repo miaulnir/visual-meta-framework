@@ -2,7 +2,7 @@ import Foundation
 
 public class Heading: Decodable { // FOTSection
     
-    enum Level: String, Decodable {
+    public enum Level: String, Decodable {
         case one   = "level1"
         case two   = "level2"
         case three = "level3"
@@ -11,7 +11,7 @@ public class Heading: Decodable { // FOTSection
         case six   = "level6"
     }
     
-    init?(jsonDict: [String: Any]) {
+    public init?(jsonDict: [String: Any]) {
         guard let data = try? JSONSerialization.data(withJSONObject: jsonDict),
               let heading = try? JSONDecoder().decode(Self.self, from: data) else { return nil }
         self.name       = heading.name
@@ -20,7 +20,7 @@ public class Heading: Decodable { // FOTSection
         self.author     = heading.author
     }
     
-    init(name: String, level: Level) {
+    public init(name: String, level: Level) {
         self.name       = name
         self.level      = level
         self.showInFind = true
@@ -28,18 +28,18 @@ public class Heading: Decodable { // FOTSection
     }
     
     /// The name of the section. For articles, this will be the author name.
-    let name: String
+    public let name: String
     
     /// The heading level of the section
-    let level: Level
+    public let level: Level
     
-    var showInFind: Bool?
+    public var showInFind: Bool?
     
-    var author: String?
+    public var author: String?
     
 }
 
-extension Heading {
+public extension Heading {
     
     var textStyleIdentifier: TextStyleIdentifier {
         switch level {

@@ -1,4 +1,8 @@
+#if os(macOS)
 import AppKit
+#else
+import UIKit
+#endif
 
 //fileprivate let harvardDateFormatter: DateFormatter = {
 //    let dateFormatter = DateFormatter()
@@ -7,7 +11,7 @@ import AppKit
 //}()
 
 @available(*, deprecated, renamed: "LCitation")
-class LACitation: LCitation {}
+public class LACitation: LCitation {}
 
 public class LCitation: NSObject, NSCopying { // LACitation
     

@@ -2,7 +2,7 @@ import Foundation
 
 public class Endnotes {
     
-    internal init(endnotes: [Endnote] = []) {
+    public init(endnotes: [Endnote] = []) {
         var notes: [EndnoteIdentifier: Endnote] = [:]
         for endnote in endnotes {
             notes[endnote.identifier] = endnote
@@ -11,7 +11,7 @@ public class Endnotes {
     }
     
     
-    var endnotes: [EndnoteIdentifier: Endnote] = [:]
+    public var endnotes: [EndnoteIdentifier: Endnote] = [:]
     
 }
 
@@ -38,8 +38,13 @@ public typealias EndnoteIdentifier = String
 
 public struct Endnote {
     
-    let identifier: EndnoteIdentifier
-    let content: NSAttributedString
+    public let identifier: EndnoteIdentifier
+    public let content: NSAttributedString
+    
+    public init(identifier: EndnoteIdentifier, content: NSAttributedString) {
+        self.identifier = identifier
+        self.content = content
+    }
     
 }
 

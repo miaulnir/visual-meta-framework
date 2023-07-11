@@ -1,7 +1,7 @@
 import Foundation
 import PDFKit
 
-enum TextStyleIdentifier: String {
+public enum TextStyleIdentifier: String {
     case heading1
     case heading2
     case heading3
@@ -24,12 +24,20 @@ extension TextStyleIdentifier {
 }
 
 public struct TextHeading {
-    let identifier: String = UUID().uuidString
-    let textStyleIdentifier: TextStyleIdentifier
-    let selection: PDFSelection
-    let attributedString: NSAttributedString
-    let showInFind: Bool
-    let author: String?
+    public let identifier: String = UUID().uuidString
+    public let textStyleIdentifier: TextStyleIdentifier
+    public let selection: PDFSelection
+    public let attributedString: NSAttributedString
+    public let showInFind: Bool
+    public let author: String?
+    
+    public init(textStyleIdentifier: TextStyleIdentifier, selection: PDFSelection, attributedString: NSAttributedString, showInFind: Bool, author: String?) {
+        self.textStyleIdentifier = textStyleIdentifier
+        self.selection = selection
+        self.attributedString = attributedString
+        self.showInFind = showInFind
+        self.author = author
+    }
 }
 
 extension TextHeading: CustomDebugStringConvertible {
@@ -40,7 +48,7 @@ extension TextHeading: CustomDebugStringConvertible {
 
 extension TextHeading {
     
-    var levelInt: Int?  {
+    public var levelInt: Int?  {
         
         switch textStyleIdentifier {
         case .heading1:

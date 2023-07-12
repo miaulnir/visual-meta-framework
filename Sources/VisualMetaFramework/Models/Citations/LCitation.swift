@@ -210,10 +210,16 @@ public class LCitation: NSObject, NSCopying { // LACitation
         }
         
         plist["citationAuthors"] = citationAuthorsPlist
-        
+        #if os(macOS)
         if let data = authorInfo.rtf(from: NSRange(location: 0, length: authorInfo.length), documentAttributes: [:]) {
             plist["authorInfo"] = data
         }
+        #else
+        if let data = try? authorInfo.rtf() {
+            plist["authorInfo"] = data
+        }
+        #endif
+        
         
         plist["youTubePlaybackHour"] = youTubePlaybackHour
         plist["youTubePlaybackMinute"] = youTubePlaybackMinute
@@ -363,11 +369,13 @@ public class LCitation: NSObject, NSCopying { // LACitation
         citationAuthors = plistCitationAuthors
         
         if let authorInfoData = plist["authorInfo"] as? Data {
-            if let attributedString = NSAttributedString(rtf: authorInfoData, documentAttributes: nil) {
-                authorInfo = attributedString
-            } else {
-                authorInfo = NSAttributedString()
-            }
+            var attributedString: NSAttributedString?
+#if os(macOS)
+            attributedString = NSAttributedString(rtf: authorInfoData, documentAttributes: nil)
+#else
+            attributedString = try? NSAttributedString(data: authorInfoData, options: [NSAttributedString.DocumentReadingOptionKey.documentType: NSAttributedString.DocumentType.rtf], documentAttributes: nil)
+#endif
+            authorInfo = attributedString ?? NSAttributedString()
         }
 
         youTubePlaybackHour   = LCitation.int(for: "youTubePlaybackHour", in: plist)
@@ -871,6 +879,7 @@ public class LCitation: NSObject, NSCopying { // LACitation
     
     public override init() {}
     
+#if os(macOS)
     static func convert(font: PlatformFont, toHave fontTraits: [NSFontTraitMask]) -> PlatformFont {
         let fontManager = NSFontManager.shared
         var convertedFont = font
@@ -942,7 +951,7 @@ public class LCitation: NSObject, NSCopying { // LACitation
         
         return mutableAttributedString
     }
-    
+#endif
     
     var isAmazon: Bool {
         return creationSource == "amazon"

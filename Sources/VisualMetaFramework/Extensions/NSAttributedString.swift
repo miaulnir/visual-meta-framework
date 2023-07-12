@@ -21,4 +21,11 @@ extension NSAttributedString {
             return NSRange(location: 0, length: length)
         }
     }
+    
+    func rtf() throws -> Data {
+            try data(from: .init(location: 0, length: length),
+                documentAttributes: [.documentType: NSAttributedString.DocumentType.rtf,
+                                     .characterEncoding: String.Encoding.utf8])
+        }
+    
 }

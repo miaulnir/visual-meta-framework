@@ -47,7 +47,7 @@ private extension HeadingIndexer {
     
     func textContainer(for sectionSelection: PDFSelection, title: String, textStyleIdentifier: TextStyleIdentifier, showInFind: Bool, author: String? = nil) -> TextHeading? {
         guard let _ = sectionSelection.attributedString?.trimmed  else { return nil }
-        let font = NSFont(name: "Georgia", size: 12.00) ?? NSFont.systemFont(ofSize: NSFont.labelFontSize)
+        let font = PlatformFont(name: "Georgia", size: 12.00) ?? PlatformFont.systemFont(ofSize: PlatformFont.labelFontSize)
         let mutableAttributedString = NSMutableAttributedString(attributedString: NSAttributedString(string: title))
         
         mutableAttributedString.addAttribute(.font, value: font)

@@ -20,27 +20,23 @@ public class VMF {
             var bibtexEntry: VisualMetaEntry?
             var referencesEntries = [String]()
             var glossaryEntries   = [String]()
-            //        var endnotesEntries   = [String]()
             var headingsEntries   = [String]()
             
             let entryStrings = visualMetaEntriesString(in: visualMetaString)
             var metaEntries: [VisualMetaEntry] = []
             for entryString in entryStrings {
                 if let metaEntry = visualMetaEntry(in: entryString) {
-                    if metaEntry.isBibTeX {
-                        bibtexEntry = metaEntry
-                    }
                     metaEntries.append(metaEntry)
                 }
             }
-            
-            //            if let selfCitationString = visualMetaString.getString(between: VisualMetaTags.selfCitation) {
-            //                if let metaEntry = self.visualMetaEntry(in: selfCitationString) {
-            //                    if metaEntry.isBibTeX {
-            //                        bibtexEntry = metaEntry
-            //                    }
-            //                }
-            //            }
+
+            if let selfCitationString = visualMetaString.getString(between: VisualMetaTags.selfCitation) {
+                if let metaEntry = self.visualMetaEntry(in: selfCitationString) {
+                    if metaEntry.isBibTeX {
+                        bibtexEntry = metaEntry
+                    }
+                }
+            }
             
             if let referencesBibTeXString = visualMetaString.getString(between: VisualMetaTags.reference) {
                 let referencesBibTeXEntries = bibTeXEntries(in: referencesBibTeXString)
@@ -52,24 +48,14 @@ public class VMF {
                 glossaryEntries = glossaryBibTeXEntries
             }
             
-            //        if let endnotesBibTeXString = visualMetaString.getString(between: VisualMetaTags.endnotes) {
-            //            let endnotesBibTeXEntries = bibTeXEntries(in: endnotesBibTeXString)
-            //            print("NEW_endnotesBibTeXEntries: - ", endnotesBibTeXEntries.joined(separator: ", "))
-            //        }
-            
             if let documentHeadingsBibTeXString = visualMetaString.getString(between: VisualMetaTags.headings) {
                 let documentHeadingsBibTeXEntries = self.bibTeXEntries(in: documentHeadingsBibTeXString)
                 headingsEntries = documentHeadingsBibTeXEntries
             }
             
-            //        if let paraTextBibTeXString = visualMetaString.getString(between: VisualMetaTags.paraText) {
-            //            let paraTextBibTeXEntries = bibTeXEntries(in: paraTextBibTeXString)
-            //            print("NEW_paraTextBibTeXEntries: - ", paraTextBibTeXEntries.joined(separator: ", "))
-            //        }
             let textHeadings = self.getTextHeadings(documentHeadingsBibTeXEntries: headingsEntries,
                                                     in: document)
-            //        let glossarySelection = getGlossarySelection(in: document,
-            //                                                     and: textHeadings)
+            
             let endnotesSelection = self.getEndnotesSelection(in: document,
                                                               and: textHeadings)
             let glossary   = self.getGlossary(from: glossaryEntries)
@@ -193,7 +179,9 @@ public class VMF {
             return nil
         }
         
-        let entries = repairedEntry.getSuffix(after: "{").components(separatedBy: "¶")
+        let entries = repairedEntry.getSuffix(after: "{")
+            .components(separatedBy: "¶")
+            .flatMap({$0.components(separatedBy: "\n")})
         
         var contentDictionary = [String: Any]()
         
@@ -300,32 +288,6 @@ public class VMF {
         return nil
     }
     
-    //    private func getGlossarySelection(in document: PDFDocument, and textHeadings: [TextHeading]) -> PDFSelection? {
-    //        var selection: PDFSelection?
-    //        for (index, textHeading) in textHeadings.enumerated() {
-    //            if textHeading.textStyleIdentifier != .heading1 {
-    //                continue
-    //            }
-    //            let lowercasedHeaderName = textHeading.attributedString.string.trimmedString.lowercased()
-    //            if lowercasedHeaderName.hasPrefix("glossary") || lowercasedHeaderName.hasSuffix("glossary") {
-    //                if index == textHeadings.count - 1 {
-    //                    return textHeading.selection
-    //                } else {
-    //                    selection = textHeading.selection
-    //                }
-    //            } else if let existingSelection = selection, let page = existingSelection.pages.first {
-    //                let currentSelectionBounds = existingSelection.bounds(for: page)
-    //                let currentSelectionEndPoint = CGPoint(x: currentSelectionBounds.minX, y: currentSelectionBounds.maxY)
-    //
-    //                let newSelection = textHeading.selection
-    //                if let startPoint = newSelection.startPointOnPage() {
-    //                    return document.selection(from: page, at: currentSelectionEndPoint, to: startPoint.page, at: startPoint.point)
-    //                }
-    //            }
-    //        }
-    //        return nil
-    //    }
-    
     private func getGlossary(from glossaryBiBTeXEntrires: [String]) -> Glossary? {
         
         var glossaryEntries: [GlossaryEntry] = []
@@ -365,85 +327,6 @@ public class VMF {
         }
         
         return nil
-        
-        //        else {
-        //
-        //            guard let contentSelection = glossarySelection else { return nil }
-        //            var currentPhrase: String?
-        //            var currentAttributedString: NSMutableAttributedString?
-        //            var glossaryEntries: [GlossaryEntry] = []
-        //
-        //            let phrases = Set(glossaryPhrases)
-        //            let newlineAttributedString = NSAttributedString(string: "\n")
-        //
-        //            let selections = contentSelection.selectionsByLine()
-        //
-        //            let pattern = #"\"(.*?)\""#
-        //            let regex = try? NSRegularExpression(pattern: pattern, options: [])
-        //
-        //            let characterSet = NSCharacterSet(charactersIn: "\"")
-        //            func quotedTextPrefixing(_ selection: PDFSelection) -> String? {
-        //                guard let selectionString = selection.string?.trimmedString,
-        //                      selectionString.hasPrefix("\"") else { return nil }
-        //
-        //                let string = selectionString
-        //                let nsrange = NSRange(string.startIndex..<string.endIndex, in: string)
-        //
-        //                if let regex = regex,
-        //                   let match = regex.firstMatch(in: string, options: [], range: nsrange),
-        //                   let range = Range(match.range, in: string) {
-        //                    let substring = selectionString[range]
-        //                    let matchString = String(substring).trimmingCharacters(in: characterSet as CharacterSet)
-        //
-        //                    return matchString.trimmedString
-        //                }
-        //                return nil
-        //            }
-        //
-        //            for selection in selections {
-        //                guard let attributedString = selection.attributedString else { continue }
-        //
-        //                if let quotedText = quotedTextPrefixing(selection), !phrases.contains(quotedText) {
-        //                    print("Could not find: \(quotedText)")
-        //                }
-        //
-        //                if let quotedText = quotedTextPrefixing(selection), phrases.contains(quotedText) { // Starts with an entry
-        //                    if let phrase = currentPhrase,
-        //                       let entryAttributedString = currentAttributedString?.trimmed {
-        //
-        //                        let glossaryEntry = GlossaryEntry(phrase: phrase, content: entryAttributedString)
-        //                        glossaryEntries.append(glossaryEntry)
-        //                        currentPhrase = nil
-        //                        currentAttributedString = nil
-        //
-        //                    }
-        //                    currentPhrase = quotedText
-        //                    currentAttributedString = NSMutableAttributedString(attributedString: attributedString)
-        //                } else {    // Does not start with an entry
-        //                    if let _ = currentPhrase,
-        //                       Int(attributedString.string) == nil {
-        //
-        //                        currentAttributedString?.append(attributedString)
-        //                        currentAttributedString?.append(newlineAttributedString)
-        //                    }
-        //                }
-        //            }
-        //
-        //            if let phrase = currentPhrase,
-        //               let entryAttributedString = currentAttributedString {
-        //                let glossaryEntry = GlossaryEntry(phrase: phrase, content: entryAttributedString)
-        //                glossaryEntries.append(glossaryEntry)
-        //                currentPhrase = nil
-        //                currentAttributedString = nil
-        //            }
-        //
-        //            if !glossaryEntries.isEmpty {
-        //                return Glossary(with: glossaryEntries.map({ GlossaryEntryV2(identifier: UUID().uuidString,
-        //                                                                            phrase: $0.phrase,
-        //                                                                            entry: $0.content.string)}))
-        //            }
-        //        }
-        //        return nil
     }
     
     private func getEndnotes(from endnotesSelection: PDFSelection?) -> Endnotes? {

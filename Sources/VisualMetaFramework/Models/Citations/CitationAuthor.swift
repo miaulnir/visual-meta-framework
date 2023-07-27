@@ -14,7 +14,7 @@ public final class CitationAuthor : NSObject {
     @objc public dynamic var lastName  : String?
     @objc public dynamic var suffixName: String?
 
-    static func citationAuthor(with name: String) -> CitationAuthor {
+    public static func citationAuthor(with name: String) -> CitationAuthor {
         let citationAuthor = CitationAuthor()
         if let personNameComponents = nameFormatter.personNameComponents(from: name) {
             citationAuthor.prefixName = personNameComponents.namePrefix

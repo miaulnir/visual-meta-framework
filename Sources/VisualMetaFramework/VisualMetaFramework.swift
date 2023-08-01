@@ -122,7 +122,7 @@ public class VMF {
         let repairedEntry = visualMetaEntryString.replacingOccurrences(of: "},", with: "},\n\n")
         
         func _stringTrimming(string: String) -> String {
-            let characterSet = CharacterSet(charactersIn: "= {},\"")
+            let characterSet = CharacterSet(charactersIn: "= {},\"¶")
             return string.trimmingCharacters(in: characterSet)
         }
         
@@ -178,10 +178,14 @@ public class VMF {
             }
             return nil
         }
-        
-        let entries = repairedEntry.getSuffix(after: "{")
+        var entries: [String]
+        let entriesStringSkipedTag = repairedEntry.getSuffix(after: "{")
+        entries = entriesStringSkipedTag.matches(regex: "([\\s]|[\\n]|,|¶)[^\\s=\\¶,]+ = \\{.[^}]+\\}") ??
+        repairedEntry.getSuffix(after: "{")
             .components(separatedBy: "¶")
             .flatMap({$0.components(separatedBy: "\n")})
+        
+        entries = entries.map{$0.trimmingCharacters(in: .newlines)}
         
         var contentDictionary = [String: Any]()
         

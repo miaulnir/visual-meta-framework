@@ -96,4 +96,13 @@ extension String {
         }
         return false
     }
+    
+    func matches(regex pattern: String) -> [String]? {
+        guard let regex = try? NSRegularExpression(pattern: pattern) else { return nil }
+        let range = NSRange(location: 0, length: self.utf16.count)
+        
+        let matches = regex.matches(in: self, range: range)
+        let nsString = self as NSString
+        return matches.map({ nsString.substring(with: $0.range) })
+    }
 }

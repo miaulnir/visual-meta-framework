@@ -180,7 +180,7 @@ public class VMF {
         }
         var entries: [String]
         let entriesStringSkipedTag = repairedEntry.getSuffix(after: "{")
-        entries = entriesStringSkipedTag.matches(regex: "([\\s]|[\\n]|,|¶)[^\\s=\\¶,]+ = \\{.[^}]+\\}") ??
+        entries = entriesStringSkipedTag.matches(regex: "([\\s]|[\\n]|,|¶|)[^\\s=\\¶,]+ = \\{.[^}]+\\}") ??
         repairedEntry.getSuffix(after: "{")
             .components(separatedBy: "¶")
             .flatMap({$0.components(separatedBy: "\n")})

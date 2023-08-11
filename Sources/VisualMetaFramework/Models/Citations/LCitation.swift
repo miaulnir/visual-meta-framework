@@ -388,8 +388,8 @@ public class LCitation: NSObject, NSCopying { // LACitation
         source       = LCitation.string(for: "source", in: plist)
         
         dayComponent   = LCitation.int(for: "dayComponent", in: plist)
-        yearComponent  = LCitation.int(for: "yearComponent", in: plist)
-        monthComponent = LCitation.int(for: "monthComponent", in: plist)
+        yearComponent  = LCitation.int(for: "year", in: plist)
+        monthComponent = LCitation.int(for: "month", in: plist)
         
         note         = LCitation.string(for: "note", in: plist)
         quote        = LCitation.string(for: "quote", in: plist)

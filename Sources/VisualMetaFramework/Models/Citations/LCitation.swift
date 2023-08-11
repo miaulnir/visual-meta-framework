@@ -554,11 +554,11 @@ public class LCitation: NSObject, NSCopying { // LACitation
             }
             
             if yearComponent != -1 {
-                bibTexString.append(" year = \(yearComponent),¶\n")
+                bibTexString.append(" year = {\(yearComponent)},¶\n")
             }
             
             if monthComponent != -1 {
-                bibTexString.append(" month = \(monthComponent),¶\n")
+                bibTexString.append(" month = {\(monthComponent)},¶\n")
             }
             
             if !location.isEmpty {

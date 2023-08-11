@@ -384,7 +384,7 @@ public class LCitation: NSObject, NSCopying { // LACitation
         
         date = plist["date"] as? Date
         dateAccessed = LCitation.date(for: "dateAccessed", in: plist)
-        webAddress   = LCitation.string(for: "webAddress", in: plist)
+        webAddress   = LCitation.string(for: "url", in: plist)
         source       = LCitation.string(for: "source", in: plist)
         
         dayComponent   = LCitation.int(for: "dayComponent", in: plist)

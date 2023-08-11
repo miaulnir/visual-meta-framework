@@ -862,6 +862,9 @@ public class LCitation: NSObject, NSCopying { // LACitation
     }
     
     static func int(for key: String, in plist: [AnyHashable: Any]) -> Int {
+        if let value = plist[key] as? String {
+            return Int(value) ?? -1
+        }
         if let value = plist[key] as? Int {
             return value
         }

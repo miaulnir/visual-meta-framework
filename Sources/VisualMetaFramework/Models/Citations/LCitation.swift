@@ -561,6 +561,10 @@ public class LCitation: NSObject, NSCopying { // LACitation
                 bibTexString.append(" month = {\(monthComponent)},¶\n")
             }
             
+            if dayComponent != -1 {
+                bibTexString.append(" day = {\(dayComponent)},¶\n")
+            }
+            
             if !location.isEmpty {
                 bibTexString.append(" address = {\(location)},¶\n")
             }
@@ -568,7 +572,6 @@ public class LCitation: NSObject, NSCopying { // LACitation
             if !webAddress.isEmpty {
                 bibTexString.append(" url = {\(webAddress)},¶\n")
             }
-            
             
             if !arXiv.isEmpty {
                 bibTexString.append(" arXiv = {\(arXiv)},¶\n")

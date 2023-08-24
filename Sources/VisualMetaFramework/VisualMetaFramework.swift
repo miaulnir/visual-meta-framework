@@ -117,7 +117,7 @@ public class VMF {
         return visualMetaEntries
     }
     
-    private func visualMetaEntry(in visualMetaEntryString: String) -> VisualMetaEntry? {
+    public func visualMetaEntry(in visualMetaEntryString: String) -> VisualMetaEntry? {
         
         let repairedEntry = visualMetaEntryString.replacingOccurrences(of: "},", with: "},\n\n")
         

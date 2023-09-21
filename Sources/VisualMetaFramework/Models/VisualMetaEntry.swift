@@ -52,7 +52,7 @@ public struct VisualMetaEntry {
         self.rawValue = rawValue
     }
     
-    func isDifferentBibTeX(by anotherBibTeX: VisualMetaEntry) -> Bool {
+    public func isDifferentBibTeX(by anotherBibTeX: VisualMetaEntry) -> Bool {
         return !Set(anotherBibTeX.content.keys).subtracting(Set(content.keys)).isEmpty
     }
         

@@ -1,6 +1,12 @@
 import PDFKit
 
-public typealias VisualMetaResponse = (visualMetaSelection: PDFSelection?, bibtex: VisualMetaEntry?, metaEntries: [VisualMetaEntry]?,  headings: [TextHeading]?, glossary: Glossary?, endnotes: Endnotes?, references: References?)
+public typealias VisualMetaResponse = (visualMetaSelection: PDFSelection?,
+                                       bibtex: VisualMetaEntry?,
+                                       metaEntries: [VisualMetaEntry]?,
+                                       headings: [TextHeading]?,
+                                       glossary: Glossary?,
+                                       endnotes: Endnotes?,
+                                       references: References?)
 
 /// VisualMeta Framework
 public class VMF {

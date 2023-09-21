@@ -51,26 +51,36 @@ public struct VisualMetaEntry {
         self.content = content
         self.rawValue = rawValue
     }
+    
+    func isDifferentBibTeX(by anotherBibTeX: VisualMetaEntry) -> Bool {
+        return !Set(anotherBibTeX.content.keys).subtracting(Set(content.keys)).isEmpty
+    }
         
-    public mutating func append(by anotherBibTeX: VisualMetaEntry) {
-//        guard let index = rawValue.lastIndex(where: {$0 == "}"}) else { return }
+    public func appended(by anotherBibTeX: VisualMetaEntry) -> VisualMetaEntry? {
         let newKeys = Set(anotherBibTeX.content.keys).subtracting(Set(content.keys))
-//        let bibTeXAppend = newKeys.map({ "\($0) = {\(anotherBibTeX.content[$0])},¶\n"}).joined()
-//        rawValue.insert(contentsOf: bibTeXAppend, at: index)
-        guard !newKeys.isEmpty else { return }
-        guard let index = rawValue.lastIndex(where: {$0 == "}"}) else { return }
-        rawValue.remove(at: index)
+       
+        guard !newKeys.isEmpty else { return self }
+        var newRawValue = rawValue
+        var newContent  = content
+        let kind        = kind
+
+        if let index = newRawValue.lastIndex(where: {$0 == "}"}) {
+            newRawValue.remove(at: index)
+        }
+        
         for key in newKeys {
             if let value = anotherBibTeX.content[key] as? String {
                 let element = key + " = {" + value + "},¶\n"
-                rawValue.append(contentsOf: element)
+                newRawValue.append(contentsOf: element)
             }
             if let value = anotherBibTeX.content[key] as? NSNumber {
                 let element = key + " = {\(value)},¶\n"
-                rawValue.append(contentsOf: element)
+                newRawValue.append(contentsOf: element)
             }
-            content[key] = anotherBibTeX.content[key]
+            newContent[key] = anotherBibTeX.content[key]
         }
-        rawValue.append(contentsOf: "}")
+        newRawValue.append(contentsOf: "}")
+        
+        return VisualMetaEntry(kind: kind, content: newContent, rawValue: newRawValue)
     }
 }

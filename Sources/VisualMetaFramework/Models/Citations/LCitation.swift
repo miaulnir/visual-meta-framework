@@ -568,10 +568,6 @@ public class LCitation: NSObject, NSCopying { // LACitation
                 bibTexString.append(" pageRange = {\(pageRange)},¶\n")
             }
             
-            if !pageRange.isEmpty {
-                bibTexString.append(" pageRange = {\(pageRange)},¶\n")
-            }
-            
             bibTexString.append("}\n\n")
             
             return bibTexString

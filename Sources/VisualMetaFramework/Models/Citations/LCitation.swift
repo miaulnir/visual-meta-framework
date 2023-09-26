@@ -43,6 +43,11 @@ public class LCitation: NSObject, NSCopying { // LACitation
         case browser
     }
     
+    enum AvailableKeysForBibtex: String, CaseIterable {
+        
+        case creationSource, title, filename, author, url, source, day, year, month, note, quote, originalText, location, publisher, publication, issue, isbn, asin, doi, issn, pubMed, arXiv, volume, series, editor, journal, pageRangeStart, pageRangeEnd, pageRange, pages
+    }
+    
     @objc public var identifier = UUID().uuidString
     
     @objc public dynamic var title = ""
@@ -438,96 +443,6 @@ public class LCitation: NSObject, NSCopying { // LACitation
         }
     }
     
-//    public var bibTeXRecord: BibTeXRecord {
-//        get {
-//            var record = BibTeXRecord(type: bibTeXType, additionalMetadata: bibTeXID)
-//
-//            if let creatorString = bibTexCreatorString {
-//                record.addEntryWith(key: "author", value: creatorString)
-//            }
-//
-//            if !editor.isEmpty {
-//                record.addEntryWith(key: "editor", value: editor)
-//            }
-//
-//            if !title.isEmpty {
-//                record.addEntryWith(key: "title", value: title)
-//            }
-//
-//            if let filename = filename, !filename.isEmpty {
-//                record.addEntryWith(key: "filename", value: filename)
-//            }
-//
-//            if !journal.isEmpty {
-//                record.addEntryWith(key: "journal", value: journal)
-//            }
-//
-//            if !publication.isEmpty {
-//                record.addEntryWith(key: "publication", value: publication)
-//            }
-//
-//            if !publisher.isEmpty {
-//                record.addEntryWith(key: "publisher", value: publisher)
-//            }
-//
-//            if yearComponent != -1 {
-//                record.addEntryWith(key: "year", value: String(describing: yearComponent))
-//            }
-//
-//            if monthComponent != -1 {
-//                record.addEntryWith(key: "month", value: String(describing: monthComponent))
-//            }
-//
-//            if !location.isEmpty {
-//                record.addEntryWith(key: "address", value: location)
-//            }
-//
-//            if !webAddress.isEmpty {
-//                record.addEntryWith(key: "url", value: webAddress)
-//            }
-//
-//
-//            if !arXiv.isEmpty {
-//                record.addEntryWith(key: "arXiv", value: arXiv)
-//            }
-//
-//            if !asin.isEmpty {
-//                record.addEntryWith(key: "asin", value: asin)
-//            }
-//
-//            if !doi.isEmpty {
-//                record.addEntryWith(key: "doi", value: doi)
-//            }
-//
-//            if !isbn.isEmpty {
-//                record.addEntryWith(key: "isbn", value: isbn)
-//            }
-//
-//            if !issue.isEmpty {
-//                record.addEntryWith(key: "issue", value: issue)
-//            }
-//
-//            if let pageRangeBibTexString = pageRangeBibTexString {
-//                record.addEntryWith(key: "pages", value: pageRangeBibTexString)
-//            }
-//
-//            if !pubMed.isEmpty {
-//                record.addEntryWith(key: "pubMed", value: pubMed)
-//            }
-//
-//            if !volume.isEmpty {
-//                record.addEntryWith(key: "volume", value: volume)
-//            }
-//
-//            if !note.isEmpty {
-//                record.addEntryWith(key: "note", value: note)
-//            }
-//
-//            return record
-//        }
-//        set {}
-//    }
-    
     public var bibTeX: String {
         get {
             var bibTexString = ""
@@ -566,7 +481,7 @@ public class LCitation: NSObject, NSCopying { // LACitation
             }
             
             if !location.isEmpty {
-                bibTexString.append(" address = {\(location)},¶\n")
+                bibTexString.append(" location = {\(location)},¶\n")
             }
 
             if !webAddress.isEmpty {
@@ -615,6 +530,46 @@ public class LCitation: NSObject, NSCopying { // LACitation
             
             if !note.isEmpty {
                 bibTexString.append(" note = {\(note)},¶\n")
+            }
+            
+            if !creationSource.isEmpty {
+                bibTexString.append(" creationSource = {\(creationSource)},¶\n")
+            }
+            
+            if !source.isEmpty {
+                bibTexString.append(" source = {\(source)},¶\n")
+            }
+            
+            if !quote.isEmpty {
+                bibTexString.append(" quote = {\(quote)},¶\n")
+            }
+            
+            if !originalText.isEmpty {
+                bibTexString.append(" originalText = {\(originalText)},¶\n")
+            }
+            
+            if !issn.isEmpty {
+                bibTexString.append(" issn = {\(issn)},¶\n")
+            }
+            
+            if !series.isEmpty {
+                bibTexString.append(" series = {\(series)},¶\n")
+            }
+            
+            if pageRangeStart > -1 {
+                bibTexString.append(" pageRangeStart = {\(pageRangeStart)},¶\n")
+            }
+            
+            if pageRangeEnd > -1 {
+                bibTexString.append(" pageRangeEnd = {\(pageRangeEnd)},¶\n")
+            }
+            
+            if !pageRange.isEmpty {
+                bibTexString.append(" pageRange = {\(pageRange)},¶\n")
+            }
+            
+            if !pageRange.isEmpty {
+                bibTexString.append(" pageRange = {\(pageRange)},¶\n")
             }
             
             bibTexString.append("}\n\n")

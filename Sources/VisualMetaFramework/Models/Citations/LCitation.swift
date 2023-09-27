@@ -45,7 +45,7 @@ public class LCitation: NSObject, NSCopying { // LACitation
     
     public enum AvailableKeysForBibtex: String, CaseIterable {
         
-        case creationSource, title, filename, author, url, source, day, year, month, note, quote, originalText, location, publisher, publication, issue, isbn, asin, doi, issn, pubMed, arXiv, volume, series, editor, journal, pageRangeStart, pageRangeEnd, pageRange, pages
+        case creationSource, title, filename, author, url, source, day, year, month, note, quote, originalText, location, publisher, publication, issue, isbn, asin, doi, DOI, issn, pubMed, arXiv, volume, series, editor, journal, pageRangeStart, pageRangeEnd, pageRange, pages
     }
     
     @objc public var identifier = UUID().uuidString

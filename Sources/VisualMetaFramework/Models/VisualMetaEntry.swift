@@ -40,11 +40,15 @@ public struct VisualMetaEntry {
     
     public var isVisualMeta: Bool { kind == "visual-meta" }
     
-//    public var bibTeXString: String {
-//        let start = "@\(kind){\n"
-//        let end   = content.map({ "\($0.key) = {\($0.value)},\n" }).joined() + "}"
-//        return start
-//    }
+    public var bibTeXString: String {
+        var withoutNewLine = rawValue.replacingOccurrences(of: "\n", with: "")
+        var withNewLines   = withoutNewLine.replacingOccurrences(of: "¶", with: "\n")
+        var bibTeXString   = withNewLines
+        if let lastCommaIndex = withoutNewLine.lastIndex(where: {$0 == ","}) {
+            bibTeXString   = String(withNewLines.remove(at: lastCommaIndex))
+        }
+        return bibTeXString
+    }
     
     public init(kind: String, content: [String : Any], rawValue: String) {
         self.kind = kind

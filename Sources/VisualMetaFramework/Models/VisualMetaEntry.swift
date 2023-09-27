@@ -41,10 +41,10 @@ public struct VisualMetaEntry {
     public var isVisualMeta: Bool { kind == "visual-meta" }
     
     public var bibTeXString: String {
-        var withoutNewLine = rawValue.replacingOccurrences(of: "\n", with: "")
-        var withNewLines   = withoutNewLine.replacingOccurrences(of: "¶", with: "\n")
-        var bibTeXString   = withNewLines
-        if let lastCommaIndex = withoutNewLine.lastIndex(where: {$0 == ","}) {
+        var bibTeXString = rawValue.replacingOccurrences(of: "\n", with: "")
+            .replacingOccurrences(of: "¶ ", with: "\n")
+            .replacingOccurrences(of: "¶", with: "\n")
+        if let lastCommaIndex = bibTeXString.lastIndex(where: {$0 == ","}) {
             bibTeXString.remove(at: lastCommaIndex)
         }
         return bibTeXString

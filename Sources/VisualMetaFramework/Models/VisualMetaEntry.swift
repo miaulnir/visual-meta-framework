@@ -45,7 +45,7 @@ public struct VisualMetaEntry {
         var withNewLines   = withoutNewLine.replacingOccurrences(of: "¶", with: "\n")
         var bibTeXString   = withNewLines
         if let lastCommaIndex = withoutNewLine.lastIndex(where: {$0 == ","}) {
-            bibTeXString   = String(withNewLines.remove(at: lastCommaIndex))
+            bibTeXString.remove(at: lastCommaIndex)
         }
         return bibTeXString
     }

@@ -489,7 +489,7 @@ public class VMF {
             var identifier = ""
             if let indexes = indexes,
                 let intIndex = indexes[safe:index] {
-                identifier = "\(indexes[intIndex] + 1)"
+                identifier = "\(intIndex + 1)"
             } else {
                 identifier = "\(index + 1)"
             }

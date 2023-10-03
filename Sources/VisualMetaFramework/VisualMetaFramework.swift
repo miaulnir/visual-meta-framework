@@ -13,6 +13,82 @@ public class VMF {
     
     static public let shared = VMF()
     
+    /// test method
+    public func parseVisualMeta(string: String, completion: @escaping (VisualMetaResponse?) -> ()) {
+        DispatchQueue.global(qos: .userInitiated).async { [weak self] in
+            
+            guard let self = self else {
+                completion(nil)
+                return
+            }
+            
+            var bibtexEntry: VisualMetaEntry?
+            var referencesEntries = [String]()
+            var glossaryEntries   = [String]()
+            var headingsEntries   = [String]()
+            var indexes: [Int]?
+            
+            let entryStrings = self.visualMetaEntriesString(in: string)
+            var metaEntries: [VisualMetaEntry] = []
+            for entryString in entryStrings {
+                if let metaEntry = visualMetaEntry(in: entryString) {
+                    metaEntries.append(metaEntry)
+                }
+            }
+
+            if let selfCitationString = string.getString(between: VisualMetaTags.selfCitation) {
+                if let metaEntry = visualMetaEntry(in: selfCitationString) {
+                    if metaEntry.isBibTeX {
+                        bibtexEntry = metaEntry
+                    }
+                }
+            }
+            
+//            let testString =
+            
+            if let referencesIndexesBibTeXString = string.getString(between: VisualMetaTags.referencesIndex) {
+                let visualMeta = visualMetaEntry(in: referencesIndexesBibTeXString)
+                if let referencesIndexes = visualMeta?.content["indexes"] as? String {
+                    indexes = referencesIndexes.split(separator: ",").compactMap({Int($0)})
+                }
+            }
+            
+            if let referencesBibTeXString = string.getString(between: VisualMetaTags.reference) {
+                let referencesBibTeXEntries = bibTeXEntries(in: referencesBibTeXString)
+                referencesEntries = referencesBibTeXEntries
+            }
+            
+            if let glossaryBibTeXString = string.getString(between: VisualMetaTags.glossary) {
+                let glossaryBibTeXEntries = bibTeXEntries(in: glossaryBibTeXString)
+                glossaryEntries = glossaryBibTeXEntries
+            }
+            
+            if let documentHeadingsBibTeXString = string.getString(between: VisualMetaTags.headings) {
+                let documentHeadingsBibTeXEntries = bibTeXEntries(in: documentHeadingsBibTeXString)
+                headingsEntries = documentHeadingsBibTeXEntries
+            }
+            
+//            let textHeadings = self.getTextHeadings(documentHeadingsBibTeXEntries: headingsEntries,
+//                                                    in: document)
+            
+//            let endnotesSelection = self.getEndnotesSelection(in: document,
+//                                                              and: textHeadings)
+            let glossary   = getGlossary(from: glossaryEntries)
+//            let endnotes   = self.getEndnotes(from: endnotesSelection)
+            let references = getReferences(from: referencesEntries, indexes: indexes)
+            
+            let response: VisualMetaResponse = (nil,
+                                                bibtexEntry,
+                                                metaEntries,
+                                                nil,
+                                                glossary,
+                                                nil,
+                                                references)
+            completion(response)
+        }
+
+    }
+    
     public func parseVisualMeta(in document: PDFDocument, completion: @escaping (VisualMetaResponse?) -> ()) {
         DispatchQueue.global(qos: .userInitiated).async { [weak self] in
             
@@ -27,6 +103,7 @@ public class VMF {
             var referencesEntries = [String]()
             var glossaryEntries   = [String]()
             var headingsEntries   = [String]()
+            var indexes: [Int]?
             
             let entryStrings = visualMetaEntriesString(in: visualMetaString)
             var metaEntries: [VisualMetaEntry] = []
@@ -43,9 +120,16 @@ public class VMF {
                     }
                 }
             }
+ 
+            if let referencesIndexesBibTeXString = visualMetaString.getString(between: VisualMetaTags.referencesIndex) {
+                let visualMeta = self.visualMetaEntry(in: referencesIndexesBibTeXString)
+                if let referencesIndexes = visualMeta?.content["indexes"] as? String {
+                    indexes = referencesIndexes.split(separator: ",").compactMap({Int($0)})
+                }
+            }
             
             if let referencesBibTeXString = visualMetaString.getString(between: VisualMetaTags.reference) {
-                let referencesBibTeXEntries = bibTeXEntries(in: referencesBibTeXString)
+                let referencesBibTeXEntries = self.bibTeXEntries(in: referencesBibTeXString)
                 referencesEntries = referencesBibTeXEntries
             }
             
@@ -66,7 +150,7 @@ public class VMF {
                                                               and: textHeadings)
             let glossary   = self.getGlossary(from: glossaryEntries)
             let endnotes   = self.getEndnotes(from: endnotesSelection)
-            let references = self.getReferences(from: referencesEntries)
+            let references = self.getReferences(from: referencesEntries, indexes: indexes)
             
             let response: VisualMetaResponse = (visualMetaSelection,
                                                 bibtexEntry,
@@ -398,11 +482,17 @@ public class VMF {
         return Endnotes(endnotes: endnotesFound)
     }
     
-    private func getReferences(from referenceEntries: [String]) -> References {
+    private func getReferences(from referenceEntries: [String], indexes: [Int]? = nil) -> References {
         var referenceEntriesDict: [String: ReferenceEntry] = [:]
         
         for (index, reference) in referenceEntries.enumerated() {
-            let identifier = "\(index + 1)"
+            var identifier = ""
+            if let indexes = indexes,
+                let intIndex = indexes[safe:index] {
+                identifier = "\(indexes[intIndex] + 1)"
+            } else {
+                identifier = "\(index + 1)"
+            }
             referenceEntriesDict[identifier] = ReferenceEntry(identifier: identifier,
                                                               content: NSAttributedString(string: reference))
             

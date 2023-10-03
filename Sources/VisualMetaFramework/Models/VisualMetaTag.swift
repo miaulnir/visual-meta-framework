@@ -1,11 +1,12 @@
 enum VisualMetaTags {
-    static let visualMeta   = VisualMetaTag("visual-meta")
-    static let selfCitation = VisualMetaTag("visual-meta-bibtex-self-citation")
-    static let reference    = VisualMetaTag("references")
-    static let glossary     = VisualMetaTag("glossary")
-    static let endnotes     = VisualMetaTag("endnotes")
-    static let headings     = VisualMetaTag("document-headings")
-    static let paraText     = VisualMetaTag("paraText")
+    static let visualMeta      = VisualMetaTag("visual-meta")
+    static let selfCitation    = VisualMetaTag("visual-meta-bibtex-self-citation")
+    static let referencesIndex = VisualMetaTag("references-index")
+    static let reference       = VisualMetaTag("references")
+    static let glossary        = VisualMetaTag("glossary")
+    static let endnotes        = VisualMetaTag("endnotes")
+    static let headings        = VisualMetaTag("document-headings")
+    static let paraText        = VisualMetaTag("paraText")
 }
 
 public class VisualMetaTag: Equatable {

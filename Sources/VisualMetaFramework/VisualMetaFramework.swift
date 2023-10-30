@@ -25,6 +25,7 @@ public class VMF {
             var bibtexEntry: VisualMetaEntry?
             var referencesEntries = [String]()
             var glossaryEntries   = [String]()
+            var endnotesEntries   = [String]()
             var headingsEntries   = [String]()
             var indexes: [Int]?
             
@@ -44,8 +45,6 @@ public class VMF {
                 }
             }
             
-//            let testString =
-            
             if let referencesIndexesBibTeXString = string.getString(between: VisualMetaTags.referencesIndex) {
                 let visualMeta = visualMetaEntry(in: referencesIndexesBibTeXString)
                 if let referencesIndexes = visualMeta?.content["indexes"] as? String {
@@ -63,6 +62,11 @@ public class VMF {
                 glossaryEntries = glossaryBibTeXEntries
             }
             
+            if let endnotesBibTeXString = string.getString(between: VisualMetaTags.endnotes) {
+                let endnotesBibTeXEntries = self.bibTeXEntries(in: endnotesBibTeXString)
+                endnotesEntries = endnotesBibTeXEntries
+            }
+            
             if let documentHeadingsBibTeXString = string.getString(between: VisualMetaTags.headings) {
                 let documentHeadingsBibTeXEntries = bibTeXEntries(in: documentHeadingsBibTeXString)
                 headingsEntries = documentHeadingsBibTeXEntries
@@ -74,7 +78,7 @@ public class VMF {
 //            let endnotesSelection = self.getEndnotesSelection(in: document,
 //                                                              and: textHeadings)
             let glossary   = getGlossary(from: glossaryEntries)
-//            let endnotes   = self.getEndnotes(from: endnotesSelection)
+            let endnotes   = getEndnotes(from: endnotesEntries)
             let references = getReferences(from: referencesEntries, indexes: indexes)
             
             let response: VisualMetaResponse = (nil,
@@ -82,7 +86,7 @@ public class VMF {
                                                 metaEntries,
                                                 nil,
                                                 glossary,
-                                                nil,
+                                                endnotes,
                                                 references)
             completion(response)
         }
@@ -102,6 +106,7 @@ public class VMF {
             var bibtexEntry: VisualMetaEntry?
             var referencesEntries = [String]()
             var glossaryEntries   = [String]()
+            var endnotesEntries   = [String]()
             var headingsEntries   = [String]()
             var indexes: [Int]?
             
@@ -138,6 +143,11 @@ public class VMF {
                 glossaryEntries = glossaryBibTeXEntries
             }
             
+            if let endnotesBibTeXString = visualMetaString.getString(between: VisualMetaTags.endnotes) {
+                let endnotesBibTeXEntries = self.bibTeXEntries(in: endnotesBibTeXString)
+                endnotesEntries = endnotesBibTeXEntries
+            }
+            
             if let documentHeadingsBibTeXString = visualMetaString.getString(between: VisualMetaTags.headings) {
                 let documentHeadingsBibTeXEntries = self.bibTeXEntries(in: documentHeadingsBibTeXString)
                 headingsEntries = documentHeadingsBibTeXEntries
@@ -149,7 +159,15 @@ public class VMF {
             let endnotesSelection = self.getEndnotesSelection(in: document,
                                                               and: textHeadings)
             let glossary   = self.getGlossary(from: glossaryEntries)
-            let endnotes   = self.getEndnotes(from: endnotesSelection)
+            
+            var endnotes: Endnotes?
+            
+            if !endnotesEntries.isEmpty {
+                endnotes = self.getEndnotes(from: endnotesEntries)
+            } else {
+                endnotes = self.getEndnotes(from: endnotesSelection)
+            }
+            
             let references = self.getReferences(from: referencesEntries, indexes: indexes)
             
             let response: VisualMetaResponse = (visualMetaSelection,
@@ -174,7 +192,7 @@ public class VMF {
         correctedString.enumerateLines { line, _ in
             let selectionString = line.trimmingCharacters(in: .whitespacesAndNewlines)
             
-            if selectionString.containsWithBibTexInitializer1 {
+            if selectionString.containsWithBibTexInitializer {
                 currentEntry = line
             } else if selectionString == "}" {
                 
@@ -184,6 +202,7 @@ public class VMF {
                 }
             } else {
                 currentEntry?.append(line)
+                currentEntry?.append("\n")
             }
         }
         return entries
@@ -289,7 +308,7 @@ public class VMF {
             keyValueScanner.scanUpTo("\n", into: &valueString)
             
             if let key = keyString, let value = valueString {
-                let trimmedKey = _stringTrimming(string: key as String)
+                let trimmedKey   = _stringTrimming(string: key as String)
                 let trimmedValue = _stringTrimming(string: value as String)
                 
                 contentDictionary[trimmedKey] = trimmedValue
@@ -421,6 +440,23 @@ public class VMF {
         }
         
         return nil
+    }
+    
+    private func getEndnotes(from endnotesBiBTeXEntries: [String]) -> Endnotes? {
+        
+        guard !endnotesBiBTeXEntries.isEmpty else { return nil }
+        var endnotes = [Endnote]()
+        for endnoteStringEntrie in endnotesBiBTeXEntries {
+            if let id   = endnoteStringEntrie.getSuffix(after: "{").components(separatedBy: ",").first {
+                var text = endnoteStringEntrie.getSuffix(after: "text")
+                text.remove(characters: "={},\"¶")
+                text = text.trimmingCharacters(in: .whitespaces)
+                let attributeString = NSAttributedString(string: text)
+                let endnote = Endnote(identifier: id, content: attributeString)
+                endnotes.append(endnote)
+            }
+        }
+        return Endnotes(endnotes: endnotes)
     }
     
     private func getEndnotes(from endnotesSelection: PDFSelection?) -> Endnotes? {

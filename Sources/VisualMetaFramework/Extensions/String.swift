@@ -2,6 +2,12 @@ import Foundation
 
 extension String {
     
+    mutating func remove(characters: String) {
+        for character in characters {
+            self = replacingOccurrences(of: String(character), with: "")
+        }
+    }
+    
     func lowercasingFirstLetter() -> String {
         let first = String(prefix(1)).lowercased()
         let other = String(dropFirst())
@@ -49,7 +55,7 @@ extension String {
         return selfString
     }
     
-    var containsWithBibTexInitializer1: Bool {
+    var containsWithBibTexInitializer: Bool {
         do {
             let pattern = #"@(.*?)\{"#
             let regex = try NSRegularExpression(pattern: pattern, options: [])

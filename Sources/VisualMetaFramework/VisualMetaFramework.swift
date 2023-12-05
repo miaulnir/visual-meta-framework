@@ -226,7 +226,7 @@ public class VMF {
         return visualMetaEntries
     }
     
-    public func visualMetaEntry(in visualMetaEntryString: String) -> VisualMetaEntry? {
+    public func visualMetaEntry(in visualMetaEntryString: String, isGlossary: Bool? = nil) -> VisualMetaEntry? {
         
         let repairedEntry = visualMetaEntryString.replacingOccurrences(of: "},", with: "},\n\n")
         
@@ -305,7 +305,7 @@ public class VMF {
             keyValueScanner.scanUpTo("=", into: &keyString)
             
             var valueString: NSString?
-            keyValueScanner.scanUpTo("\n", into: &valueString)
+            keyValueScanner.scanUpTo((isGlossary ?? false) ? "}" : "\n", into: &valueString)
             
             if let key = keyString, let value = valueString {
                 let trimmedKey   = _stringTrimming(string: key as String)
@@ -405,7 +405,7 @@ public class VMF {
         
         var glossaryEntries: [GlossaryEntry] = []
         for glossaryEntrie in glossaryBiBTeXEntrires {
-            if let metaEntry = visualMetaEntry(in: glossaryEntrie),
+            if let metaEntry = visualMetaEntry(in: glossaryEntrie, isGlossary: true),
                let name = metaEntry.content["name"] as? String,
                let description = metaEntry.content["description"] as? String  {
                 

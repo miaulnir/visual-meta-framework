@@ -32,6 +32,12 @@ extension String {
         return self
     }
     
+    func slice(from: String, to: String) -> String? {
+        guard let rangeFrom = range(of: from)?.upperBound else { return nil }
+        guard let rangeTo = self[rangeFrom...].range(of: to)?.lowerBound else { return nil }
+        return String(self[rangeFrom..<rangeTo])
+    }
+    
     /// Get string between two tags "some text tag.startTag bla bla bla tag.startTag some text" -> " bla bla bla "
     func getString(between tag: VisualMetaTag) -> String? {
         return (range(of: tag.startTag)?.upperBound).flatMap { substringFrom in

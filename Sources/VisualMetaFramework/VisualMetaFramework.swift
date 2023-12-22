@@ -319,6 +319,14 @@ public class VMF {
     }
     
     private func visualMetaSelection(from document: PDFDocument) -> PDFSelection? {
+        return visualMetaSelection(from: document,
+                                   with: VisualMetaTags.visualMeta.startTag,
+                                   and: VisualMetaTags.visualMeta.endTag)
+    }
+    
+    private func visualMetaSelection(from document: PDFDocument, 
+                                     with startTag: String,
+                                     and endTag: String) -> PDFSelection? {
         
         var searchSelections: [PDFSelection] = []
         
@@ -333,9 +341,9 @@ public class VMF {
         
         for selection in searchSelections {
             if let trimmedString = selection.attributedString?.string.trimmingCharacters(in: .whitespacesAndNewlines) {
-                if trimmedString == VisualMetaTags.visualMeta.startTag {
+                if trimmedString == startTag {
                     startSelection = selection
-                } else if trimmedString == VisualMetaTags.visualMeta.endTag {
+                } else if trimmedString == endTag {
                     endSelection   = selection
                 }
                 if startSelection != nil && endSelection != nil {
@@ -349,6 +357,35 @@ public class VMF {
               let visualMetaSelection = document.selection(extending: start,
                                                            to: end) else { return nil }
         return visualMetaSelection
+    }
+    
+    // test method
+    public func aiMetadataTest(string: String) {
+        
+        let startPartOfTag = "@{ai-"
+        let endPartOfTag   = "-start}"
+        
+        guard let midPartOfTag = string.slice(from: startPartOfTag, to: endPartOfTag) else { return }
+        
+        let startTag = startPartOfTag + midPartOfTag + endPartOfTag
+        let endTag   = startPartOfTag + midPartOfTag + "-end}"
+        
+        print(startTag)
+        print(endTag)
+    }
+    
+    public func aiMetadataSelection(on page: PDFPage, in document: PDFDocument) -> PDFSelection? {
+        
+        let startPartOfTag = "@{ai-"
+        let endPartOfTag   = "-start}"
+        
+        guard let pageString = page.selection(for: page.bounds(for: .mediaBox))?.string,
+              let midPartOfTag = pageString.slice(from: startPartOfTag, to: endPartOfTag) else { return nil }
+        
+        let startTag = startPartOfTag + midPartOfTag + endPartOfTag
+        let endTag   = startPartOfTag + midPartOfTag + "-end}"
+        
+        return visualMetaSelection(from: document, with: startTag, and: endTag)
     }
     
     private func getTextHeadings(documentHeadingsBibTeXEntries: [String], in document: PDFDocument) -> [TextHeading] {

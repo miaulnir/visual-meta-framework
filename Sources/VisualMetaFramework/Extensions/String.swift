@@ -38,7 +38,7 @@ extension String {
         return String(self[rangeFrom..<rangeTo])
     }
     
-    /// Get string between two tags "some text tag.startTag bla bla bla tag.startTag some text" -> " bla bla bla "
+    /// Get string between two tags "some text tag.startTag bla bla bla tag.endTag some text" -> " bla bla bla "
     func getString(between tag: VisualMetaTag) -> String? {
         return (range(of: tag.startTag)?.upperBound).flatMap { substringFrom in
             (range(of: tag.endTag, range: substringFrom..<endIndex)?.lowerBound).map { substringTo in

@@ -200,16 +200,25 @@ public class VMF {
         let aiSelections = getAiMetadataSelections(document: document)
         
         for aiSelection in aiSelections {
-            let entryStrings = self.visualMetaEntriesString(in: aiSelection.string!)
-            var metaEntries: [VisualMetaEntry] = []
-            for entryString in entryStrings {
-                if let metaEntry = visualMetaEntry(in: entryString) {
-                    metaEntries.append(metaEntry)
+            
+            if let page = aiSelection.pages.first,
+               let nameOfAITAg = getNameOfAITag(on: page) {
+                
+                let startTag = "@{ai-\(nameOfAITAg)-start"
+                let endTag   = "@{ai-\(nameOfAITAg)-end}"
+                
+                if let aiMetadataSelectionBetweenTags = aiSelection.string?.slice(from: startTag, to: endTag) {
+                    let entryStrings = self.visualMetaEntriesString(in: aiMetadataSelectionBetweenTags)
+                    var metaEntries: [VisualMetaEntry] = []
+                    for entryString in entryStrings {
+                        if let metaEntry = visualMetaEntry(in: entryString) {
+                            metaEntries.append(metaEntry)
+                        }
+                    }
+                    
+                    print(metaEntries)
                 }
             }
-            
-            print(metaEntries)
-            
         }
         
         return []
@@ -426,13 +435,22 @@ public class VMF {
         let startPartOfTag = "@{ai-"
         let endPartOfTag   = "-start}"
         
-        guard let pageString = page.selection(for: page.bounds(for: .mediaBox))?.string,
-              let midPartOfTag = pageString.slice(from: startPartOfTag, to: endPartOfTag) else { return nil }
+        guard let midPartOfTag = getNameOfAITag(on: page) else { return nil }
         
         let startTag = startPartOfTag + midPartOfTag + endPartOfTag
         let endTag   = startPartOfTag + midPartOfTag + "-end}"
         
         return visualMetaSelection(from: document, with: startTag, and: endTag)
+    }
+    
+    private func getNameOfAITag(on page: PDFPage) -> String? {
+        
+        let startPartOfTag = "@{ai-"
+        let endPartOfTag   = "-start}"
+        
+        guard let pageString = page.selection(for: page.bounds(for: .mediaBox))?.string,
+              let name = pageString.slice(from: startPartOfTag, to: endPartOfTag) else { return nil }
+        return name
     }
     
     private func getTextHeadings(documentHeadingsBibTeXEntries: [String], in document: PDFDocument) -> [TextHeading] {

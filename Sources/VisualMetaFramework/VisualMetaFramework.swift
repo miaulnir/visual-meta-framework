@@ -205,9 +205,8 @@ public class VMF {
                let nameOfAITAg = getNameOfAITag(on: page) {
                 
                 let startTag = "@{ai-\(nameOfAITAg)-start}"
-                let endTag   = "@{ai-\(nameOfAITAg)-end}"
-                
-                if let aiMetadataSelectionBetweenTags = aiSelection.string?.slice(from: startTag, to: endTag) {
+
+                if let aiMetadataSelectionBetweenTags = aiSelection.string?.replacingOccurrences(of: startTag, with: "") {
                     let entryStrings = self.visualMetaEntriesString(in: aiMetadataSelectionBetweenTags)
                     var metaEntries: [VisualMetaEntry] = []
                     for entryString in entryStrings {

@@ -8,6 +8,9 @@ public typealias VisualMetaResponse = (visualMetaSelection: PDFSelection?,
                                        endnotes: Endnotes?,
                                        references: References?)
 
+public typealias AIMetadataResponse = (selection: PDFSelection?,
+                                       metaEntries: [VisualMetaEntry]?)
+
 /// VisualMeta Framework
 public class VMF {
     
@@ -179,6 +182,37 @@ public class VMF {
                                                 references)
             completion(response)
         }
+    }
+    
+    // testing
+    public func parseAIMetadata(document: PDFDocument) -> [AIMetadataResponse]? {
+        
+        // gets selections
+        
+        // remove selection with duplicate pages
+        // get pages
+        
+        // call fo each pages search selection
+        // get string from selections
+        // parse string
+        // get meta entriens
+        
+        let aiSelections = getAiMetadataSelections(document: document)
+        
+        for aiSelection in aiSelections {
+            let entryStrings = self.visualMetaEntriesString(in: aiSelection.string!)
+            var metaEntries: [VisualMetaEntry] = []
+            for entryString in entryStrings {
+                if let metaEntry = visualMetaEntry(in: entryString) {
+                    metaEntries.append(metaEntry)
+                }
+            }
+            
+            print(metaEntries)
+            
+        }
+        
+        return []
     }
     
     private func bibTeXEntries(in string: String) -> [String] {
@@ -372,6 +406,19 @@ public class VMF {
         
         print(startTag)
         print(endTag)
+    }
+    
+    public func getAiMetadataSelections(document: PDFDocument) -> [PDFSelection] {
+        var aiPages = Array(Set(document.findString("@{ai-").flatMap({$0.pages})))
+        
+        var aiSelections: [PDFSelection] = []
+        
+        for page in aiPages {
+            if let aiMetadataSelection = aiMetadataSelection(on: page, in: document) {
+                aiSelections.append(aiMetadataSelection)
+            }
+        }
+        return aiSelections
     }
     
     public func aiMetadataSelection(on page: PDFPage, in document: PDFDocument) -> PDFSelection? {

@@ -204,7 +204,7 @@ public class VMF {
             if let page = aiSelection.pages.first,
                let nameOfAITAg = getNameOfAITag(on: page) {
                 
-                let startTag = "@{ai-\(nameOfAITAg)-start"
+                let startTag = "@{ai-\(nameOfAITAg)-start}"
                 let endTag   = "@{ai-\(nameOfAITAg)-end}"
                 
                 if let aiMetadataSelectionBetweenTags = aiSelection.string?.slice(from: startTag, to: endTag) {

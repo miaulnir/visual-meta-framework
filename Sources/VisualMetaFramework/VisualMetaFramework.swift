@@ -9,7 +9,7 @@ public typealias VisualMetaResponse = (visualMetaSelection: PDFSelection?,
                                        references: References?)
 
 public typealias AIMetadataResponse = (selection: PDFSelection?,
-                                       metaEntries: [VisualMetaEntry]?)
+                                       metaEntries: [String: Any])
 
 /// VisualMeta Framework
 public class VMF {
@@ -185,7 +185,7 @@ public class VMF {
     }
     
     // testing
-    public func parseAIMetadata(document: PDFDocument) -> [AIMetadataResponse]? {
+    public func parseAIMetadata(document: PDFDocument) -> [AIMetadataResponse] {
         
         // gets selections
         
@@ -197,30 +197,26 @@ public class VMF {
         // parse string
         // get meta entriens
         
+        var result = [AIMetadataResponse]()
+        
         let aiSelections = getAiMetadataSelections(document: document)
         
         for aiSelection in aiSelections {
             
-            if let page = aiSelection.pages.first,
-               let nameOfAITAg = getNameOfAITag(on: page) {
-                
-                let startTag = "@{ai-\(nameOfAITAg)-start}"
-
-                if let aiMetadataSelectionBetweenTags = aiSelection.string?.replacingOccurrences(of: startTag, with: "") {
-                    let entryStrings = self.visualMetaEntriesString(in: aiMetadataSelectionBetweenTags)
-                    var metaEntries: [VisualMetaEntry] = []
-                    for entryString in entryStrings {
-                        if let metaEntry = visualMetaEntry(in: entryString) {
-                            metaEntries.append(metaEntry)
-                        }
-                    }
-                    
-                    print(metaEntries)
-                }
+            if let string = aiSelection.string {
+                let dictionary = getContentDictionary(from: string)
+                result.append((aiSelection, dictionary))
             }
         }
         
-        return []
+        return result
+    }
+    
+    // test Method
+//    
+    public func parseAIMetadata(string: String) {
+        let dictionary = getContentDictionary(from: string)
+        print(dictionary)
     }
     
     private func bibTeXEntries(in string: String) -> [String] {
@@ -268,6 +264,44 @@ public class VMF {
         return visualMetaEntries
     }
     
+//    private func aiVisualMextaEntries(in aiMetadataString: String) -> [String: Any]? {
+//          
+//        func _stringTrimming(string: String) -> String {
+//            let characterSet = CharacterSet(charactersIn: "= {},\"¶")
+//            return string.trimmingCharacters(in: characterSet)
+//        }
+//        
+//        var entries: [String]
+//        let entriesStringSkipedTag = aiMetadataString.getSuffix(after: "{")
+//        entries = entriesStringSkipedTag.matches(regex: "([\\s]|[\\n]|,|¶|)[^\\s=\\¶,]+ = \\{[^}]+\\}") ??
+//        aiMetadataString.getSuffix(after: "{")
+//            .components(separatedBy: "¶")
+//            .flatMap({$0.components(separatedBy: "\n")})
+//        
+//        entries = entries.map{$0.trimmingCharacters(in: .newlines)}
+//        
+//        var contentDictionary = [String: Any]()
+//        
+//        entries.forEach { entry in
+//            let keyValueScanner = Scanner(string: entry)
+//            
+//            var keyString: NSString?
+//            keyValueScanner.scanUpTo("=", into: &keyString)
+//            
+//            var valueString: NSString?
+//            keyValueScanner.scanUpTo("}", into: &valueString)
+//            
+//            if let key = keyString, let value = valueString {
+//                let trimmedKey   = _stringTrimming(string: key as String)
+//                let trimmedValue = _stringTrimming(string: value as String)
+//                
+//                contentDictionary[trimmedKey] = trimmedValue
+//            }
+//        }
+//        
+//        return contentDictionary
+//    }
+//    
     public func visualMetaEntry(in visualMetaEntryString: String, isGlossary: Bool? = nil) -> VisualMetaEntry? {
         
         let repairedEntry = visualMetaEntryString.replacingOccurrences(of: "},", with: "},\n\n")
@@ -329,10 +363,51 @@ public class VMF {
             }
             return nil
         }
+        
+        var contentDictionary = getContentDictionary(from: repairedEntry, isGlossary: isGlossary)
+        
+//        var entries: [String]
+//        let entriesStringSkipedTag = repairedEntry.getSuffix(after: "{")
+//        entries = entriesStringSkipedTag.matches(regex: "([\\s]|[\\n]|,|¶|)[^\\s=\\¶,]+ = \\{[^}]+\\}") ??
+//        repairedEntry.getSuffix(after: "{")
+//            .components(separatedBy: "¶")
+//            .flatMap({$0.components(separatedBy: "\n")})
+//        
+//        entries = entries.map{$0.trimmingCharacters(in: .newlines)}
+//        
+//        var contentDictionary = [String: Any]()
+//        
+//        entries.forEach { entry in
+//            let keyValueScanner = Scanner(string: entry)
+//            
+//            var keyString: NSString?
+//            keyValueScanner.scanUpTo("=", into: &keyString)
+//            
+//            var valueString: NSString?
+//            keyValueScanner.scanUpTo((isGlossary ?? false) ? "}" : "\n", into: &valueString)
+//            
+//            if let key = keyString, let value = valueString {
+//                let trimmedKey   = _stringTrimming(string: key as String)
+//                let trimmedValue = _stringTrimming(string: value as String)
+//                
+//                contentDictionary[trimmedKey] = trimmedValue
+//            }
+//        }
+        
+        return VisualMetaEntry(kind: kind, content: contentDictionary, rawValue: visualMetaEntryString)
+    }
+    
+    private func getContentDictionary(from string: String, isGlossary: Bool? = true) -> [String: Any] {
+        
+        func _stringTrimming(string: String) -> String {
+            let characterSet = CharacterSet(charactersIn: "= {},\"¶")
+            return string.trimmingCharacters(in: characterSet)
+        }
+        
         var entries: [String]
-        let entriesStringSkipedTag = repairedEntry.getSuffix(after: "{")
+        let entriesStringSkipedTag = string.getSuffix(after: "{")
         entries = entriesStringSkipedTag.matches(regex: "([\\s]|[\\n]|,|¶|)[^\\s=\\¶,]+ = \\{[^}]+\\}") ??
-        repairedEntry.getSuffix(after: "{")
+        string.getSuffix(after: "{")
             .components(separatedBy: "¶")
             .flatMap({$0.components(separatedBy: "\n")})
         
@@ -357,7 +432,7 @@ public class VMF {
             }
         }
         
-        return VisualMetaEntry(kind: kind, content: contentDictionary, rawValue: visualMetaEntryString)
+        return contentDictionary
     }
     
     private func visualMetaSelection(from document: PDFDocument) -> PDFSelection? {

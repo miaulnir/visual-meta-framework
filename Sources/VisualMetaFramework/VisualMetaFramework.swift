@@ -492,7 +492,7 @@ public class VMF {
     }
     
     public func getAiMetadataSelections(document: PDFDocument) -> [PDFSelection] {
-        var aiPages = Array(Set(document.findString("@{ai-").flatMap({$0.pages})))
+        let aiPages = Array(Set(document.findString("@{ai-").flatMap({$0.pages})))
         
         var aiSelections: [PDFSelection] = []
         
@@ -502,6 +502,17 @@ public class VMF {
             }
         }
         return aiSelections
+    }
+    
+    public func getAllAIMetadataTagsNames(document: PDFDocument) -> [String] {
+        let aiPages = Array(Set(document.findString("@{ai-").flatMap({$0.pages})))
+        var aiMetadataTagsNames = [String]()
+        for page in aiPages {
+            if let name = getNameOfAITag(on: page) {
+                aiMetadataTagsNames.append(name)
+            }
+        }
+        return aiMetadataTagsNames
     }
     
     public func aiMetadataSelection(on page: PDFPage, in document: PDFDocument) -> PDFSelection? {

@@ -16,86 +16,6 @@ public class VMF {
     
     static public let shared = VMF()
     
-    /// test method
-    public func parseVisualMeta(string: String, completion: @escaping (VisualMetaResponse?) -> ()) {
-        DispatchQueue.global(qos: .userInitiated).async { [weak self] in
-            
-            guard let self = self else {
-                completion(nil)
-                return
-            }
-            
-            var bibtexEntry: VisualMetaEntry?
-            var referencesEntries = [String]()
-            var glossaryEntries   = [String]()
-            var endnotesEntries   = [String]()
-            var headingsEntries   = [String]()
-            var indexes: [Int]?
-            
-            let entryStrings = self.visualMetaEntriesString(in: string)
-            var metaEntries: [VisualMetaEntry] = []
-            for entryString in entryStrings {
-                if let metaEntry = visualMetaEntry(in: entryString) {
-                    metaEntries.append(metaEntry)
-                }
-            }
-
-            if let selfCitationString = string.getString(between: VisualMetaTags.selfCitation) {
-                if let metaEntry = visualMetaEntry(in: selfCitationString) {
-                    if metaEntry.isBibTeX {
-                        bibtexEntry = metaEntry
-                    }
-                }
-            }
-            
-            if let referencesIndexesBibTeXString = string.getString(between: VisualMetaTags.referencesIndex) {
-                let visualMeta = visualMetaEntry(in: referencesIndexesBibTeXString)
-                if let referencesIndexes = visualMeta?.content["indexes"] as? String {
-                    indexes = referencesIndexes.split(separator: ",").compactMap({Int($0)})
-                }
-            }
-            
-            if let referencesBibTeXString = string.getString(between: VisualMetaTags.reference) {
-                let referencesBibTeXEntries = bibTeXEntries(in: referencesBibTeXString)
-                referencesEntries = referencesBibTeXEntries
-            }
-            
-            if let glossaryBibTeXString = string.getString(between: VisualMetaTags.glossary) {
-                let glossaryBibTeXEntries = bibTeXEntries(in: glossaryBibTeXString)
-                glossaryEntries = glossaryBibTeXEntries
-            }
-            
-            if let endnotesBibTeXString = string.getString(between: VisualMetaTags.endnotes) {
-                let endnotesBibTeXEntries = self.bibTeXEntries(in: endnotesBibTeXString)
-                endnotesEntries = endnotesBibTeXEntries
-            }
-            
-            if let documentHeadingsBibTeXString = string.getString(between: VisualMetaTags.headings) {
-                let documentHeadingsBibTeXEntries = bibTeXEntries(in: documentHeadingsBibTeXString)
-                headingsEntries = documentHeadingsBibTeXEntries
-            }
-            
-//            let textHeadings = self.getTextHeadings(documentHeadingsBibTeXEntries: headingsEntries,
-//                                                    in: document)
-            
-//            let endnotesSelection = self.getEndnotesSelection(in: document,
-//                                                              and: textHeadings)
-            let glossary   = getGlossary(from: glossaryEntries)
-            let endnotes   = getEndnotes(from: endnotesEntries)
-            let references = getReferences(from: referencesEntries, indexes: indexes)
-            
-            let response: VisualMetaResponse = (nil,
-                                                bibtexEntry,
-                                                metaEntries,
-                                                nil,
-                                                glossary,
-                                                endnotes,
-                                                references)
-            completion(response)
-        }
-
-    }
-    
     public func parseVisualMeta(in document: PDFDocument, completion: @escaping (VisualMetaResponse?) -> ()) {
         DispatchQueue.global(qos: .userInitiated).async { [weak self] in
             
@@ -184,41 +104,6 @@ public class VMF {
         }
     }
     
-    // testing
-    public func parseAIMetadata(document: PDFDocument) -> [AIMetadataResponse] {
-        
-        // gets selections
-        
-        // remove selection with duplicate pages
-        // get pages
-        
-        // call fo each pages search selection
-        // get string from selections
-        // parse string
-        // get meta entriens
-        
-        var result = [AIMetadataResponse]()
-        
-        let aiSelections = getAiMetadataSelections(document: document)
-        
-        for aiSelection in aiSelections {
-            
-            if let string = aiSelection.string {
-                let dictionary = getContentDictionary(from: string)
-                result.append((aiSelection, dictionary))
-            }
-        }
-        
-        return result
-    }
-    
-    // test Method
-//    
-    public func parseAIMetadata(string: String) {
-        let dictionary = getContentDictionary(from: string)
-        print(dictionary)
-    }
-    
     private func bibTeXEntries(in string: String) -> [String] {
         let correctedString = string.replacingOccurrences(of: "},¶", with: "},¶\n")
             .insertNewlinesBeforeOccurrences(of: "@")
@@ -264,44 +149,6 @@ public class VMF {
         return visualMetaEntries
     }
     
-//    private func aiVisualMextaEntries(in aiMetadataString: String) -> [String: Any]? {
-//          
-//        func _stringTrimming(string: String) -> String {
-//            let characterSet = CharacterSet(charactersIn: "= {},\"¶")
-//            return string.trimmingCharacters(in: characterSet)
-//        }
-//        
-//        var entries: [String]
-//        let entriesStringSkipedTag = aiMetadataString.getSuffix(after: "{")
-//        entries = entriesStringSkipedTag.matches(regex: "([\\s]|[\\n]|,|¶|)[^\\s=\\¶,]+ = \\{[^}]+\\}") ??
-//        aiMetadataString.getSuffix(after: "{")
-//            .components(separatedBy: "¶")
-//            .flatMap({$0.components(separatedBy: "\n")})
-//        
-//        entries = entries.map{$0.trimmingCharacters(in: .newlines)}
-//        
-//        var contentDictionary = [String: Any]()
-//        
-//        entries.forEach { entry in
-//            let keyValueScanner = Scanner(string: entry)
-//            
-//            var keyString: NSString?
-//            keyValueScanner.scanUpTo("=", into: &keyString)
-//            
-//            var valueString: NSString?
-//            keyValueScanner.scanUpTo("}", into: &valueString)
-//            
-//            if let key = keyString, let value = valueString {
-//                let trimmedKey   = _stringTrimming(string: key as String)
-//                let trimmedValue = _stringTrimming(string: value as String)
-//                
-//                contentDictionary[trimmedKey] = trimmedValue
-//            }
-//        }
-//        
-//        return contentDictionary
-//    }
-//    
     public func visualMetaEntry(in visualMetaEntryString: String, isGlossary: Bool? = nil) -> VisualMetaEntry? {
         
         let repairedEntry = visualMetaEntryString.replacingOccurrences(of: "},", with: "},\n\n")
@@ -364,35 +211,7 @@ public class VMF {
             return nil
         }
         
-        var contentDictionary = getContentDictionary(from: repairedEntry, isGlossary: isGlossary)
-        
-//        var entries: [String]
-//        let entriesStringSkipedTag = repairedEntry.getSuffix(after: "{")
-//        entries = entriesStringSkipedTag.matches(regex: "([\\s]|[\\n]|,|¶|)[^\\s=\\¶,]+ = \\{[^}]+\\}") ??
-//        repairedEntry.getSuffix(after: "{")
-//            .components(separatedBy: "¶")
-//            .flatMap({$0.components(separatedBy: "\n")})
-//        
-//        entries = entries.map{$0.trimmingCharacters(in: .newlines)}
-//        
-//        var contentDictionary = [String: Any]()
-//        
-//        entries.forEach { entry in
-//            let keyValueScanner = Scanner(string: entry)
-//            
-//            var keyString: NSString?
-//            keyValueScanner.scanUpTo("=", into: &keyString)
-//            
-//            var valueString: NSString?
-//            keyValueScanner.scanUpTo((isGlossary ?? false) ? "}" : "\n", into: &valueString)
-//            
-//            if let key = keyString, let value = valueString {
-//                let trimmedKey   = _stringTrimming(string: key as String)
-//                let trimmedValue = _stringTrimming(string: value as String)
-//                
-//                contentDictionary[trimmedKey] = trimmedValue
-//            }
-//        }
+        let contentDictionary = getContentDictionary(from: repairedEntry, isGlossary: isGlossary)
         
         return VisualMetaEntry(kind: kind, content: contentDictionary, rawValue: visualMetaEntryString)
     }
@@ -474,68 +293,6 @@ public class VMF {
               let visualMetaSelection = document.selection(extending: start,
                                                            to: end) else { return nil }
         return visualMetaSelection
-    }
-    
-    // test method
-    public func aiMetadataTest(string: String) {
-        
-        let startPartOfTag = "@{ai-"
-        let endPartOfTag   = "-start}"
-        
-        guard let midPartOfTag = string.slice(from: startPartOfTag, to: endPartOfTag) else { return }
-        
-        let startTag = startPartOfTag + midPartOfTag + endPartOfTag
-        let endTag   = startPartOfTag + midPartOfTag + "-end}"
-        
-        print(startTag)
-        print(endTag)
-    }
-    
-    public func getAiMetadataSelections(document: PDFDocument) -> [PDFSelection] {
-        let aiPages = Array(Set(document.findString("@{ai-").flatMap({$0.pages})))
-        
-        var aiSelections: [PDFSelection] = []
-        
-        for page in aiPages {
-            if let aiMetadataSelection = aiMetadataSelection(on: page, in: document) {
-                aiSelections.append(aiMetadataSelection)
-            }
-        }
-        return aiSelections
-    }
-    
-    public func getAllAIMetadataTagsNames(document: PDFDocument) -> [String] {
-        let aiPages = Array(Set(document.findString("@{ai-").flatMap({$0.pages})))
-        var aiMetadataTagsNames = [String]()
-        for page in aiPages {
-            if let name = getNameOfAITag(on: page) {
-                aiMetadataTagsNames.append(name)
-            }
-        }
-        return aiMetadataTagsNames
-    }
-    
-    public func aiMetadataSelection(on page: PDFPage, in document: PDFDocument) -> PDFSelection? {
-        
-        let startPartOfTag = "@{ai-"
-        let endPartOfTag   = "-start}"
-        
-        guard let midPartOfTag = getNameOfAITag(on: page) else { return nil }
-        
-        let startTag = startPartOfTag + midPartOfTag + endPartOfTag
-        let endTag   = startPartOfTag + midPartOfTag + "-end}"
-        
-        return visualMetaSelection(from: document, with: startTag, and: endTag)
-    }
-    
-    private func getNameOfAITag(on page: PDFPage) -> String? {
-        
-        let startPartOfTag = "@{ai-"
-        let endPartOfTag   = "-start}"
-        
-        guard let pageString = page.selection(for: page.bounds(for: .mediaBox))?.string,
-              let name = pageString.slice(from: startPartOfTag, to: endPartOfTag) else { return nil }
-        return name
     }
     
     private func getTextHeadings(documentHeadingsBibTeXEntries: [String], in document: PDFDocument) -> [TextHeading] {
@@ -796,5 +553,193 @@ public class VMF {
         }
         if !hasASource { return nil }
         return availableString
+    }
+    
+    // MARK: - AI Metadata Methods -
+    
+    // testing
+    public func parseAIMetadata(document: PDFDocument, completion: @escaping ([AIMetadataResponse]) -> ())  {
+        
+        // gets selections
+        
+        // remove selection with duplicate pages
+        // get pages
+        
+        // call fo each pages search selection
+        // get string from selections
+        // parse string
+        // get meta entriens
+        
+        DispatchQueue.global(qos: .userInitiated).async { [weak self] in
+            
+            guard let self = self else {
+                completion([])
+                return
+            }
+            
+            var result = [AIMetadataResponse]()
+            
+            let aiSelections = self.aiMetadataSelections(document: document)
+            
+            for aiSelection in aiSelections {
+                
+                if let string = aiSelection.string {
+                    let dictionary = self.getContentDictionary(from: string)
+                    result.append((aiSelection, dictionary))
+                }
+            }
+            completion([])
+        }
+    }
+    
+    private func aiMetadataSelections(document: PDFDocument) -> [PDFSelection] {
+        let aiPages = Array(Set(document.findString("@{ai-").flatMap({$0.pages})))
+        
+        var aiSelections: [PDFSelection] = []
+        
+        for page in aiPages {
+            if let aiMetadataSelection = aiMetadataSelection(on: page, in: document) {
+                aiSelections.append(aiMetadataSelection)
+            }
+        }
+        return aiSelections
+    }
+    
+    public func aiMetadataSelection(on page: PDFPage, in document: PDFDocument) -> PDFSelection? {
+        
+        let startPartOfTag = "@{ai-"
+        let endPartOfTag   = "-start}"
+        
+        guard let midPartOfTag = nameOfAITag(on: page) else { return nil }
+        
+        let startTag = startPartOfTag + midPartOfTag + endPartOfTag
+        let endTag   = startPartOfTag + midPartOfTag + "-end}"
+        
+        return visualMetaSelection(from: document, with: startTag, and: endTag)
+    }
+    
+    public func allAIMetadataTagsNames(document: PDFDocument) -> [String] {
+        let aiPages = Array(Set(document.findString("@{ai-").flatMap({$0.pages})))
+        var aiMetadataTagsNames = [String]()
+        for page in aiPages {
+            if let name = nameOfAITag(on: page) {
+                aiMetadataTagsNames.append(name)
+            }
+        }
+        return aiMetadataTagsNames
+    }
+    
+    private func nameOfAITag(on page: PDFPage) -> String? {
+        
+        let startPartOfTag = "@{ai-"
+        let endPartOfTag   = "-start}"
+        
+        guard let pageString = page.selection(for: page.bounds(for: .mediaBox))?.string,
+              let name = pageString.slice(from: startPartOfTag, to: endPartOfTag) else { return nil }
+        return name
+    }
+    
+    // MARK: - test methods -
+    
+    /// test method
+    public func parseVisualMeta(string: String, completion: @escaping (VisualMetaResponse?) -> ()) {
+        DispatchQueue.global(qos: .userInitiated).async { [weak self] in
+            
+            guard let self = self else {
+                completion(nil)
+                return
+            }
+            
+            var bibtexEntry: VisualMetaEntry?
+            var referencesEntries = [String]()
+            var glossaryEntries   = [String]()
+            var endnotesEntries   = [String]()
+            var headingsEntries   = [String]()
+            var indexes: [Int]?
+            
+            let entryStrings = self.visualMetaEntriesString(in: string)
+            var metaEntries: [VisualMetaEntry] = []
+            for entryString in entryStrings {
+                if let metaEntry = visualMetaEntry(in: entryString) {
+                    metaEntries.append(metaEntry)
+                }
+            }
+
+            if let selfCitationString = string.getString(between: VisualMetaTags.selfCitation) {
+                if let metaEntry = visualMetaEntry(in: selfCitationString) {
+                    if metaEntry.isBibTeX {
+                        bibtexEntry = metaEntry
+                    }
+                }
+            }
+            
+            if let referencesIndexesBibTeXString = string.getString(between: VisualMetaTags.referencesIndex) {
+                let visualMeta = visualMetaEntry(in: referencesIndexesBibTeXString)
+                if let referencesIndexes = visualMeta?.content["indexes"] as? String {
+                    indexes = referencesIndexes.split(separator: ",").compactMap({Int($0)})
+                }
+            }
+            
+            if let referencesBibTeXString = string.getString(between: VisualMetaTags.reference) {
+                let referencesBibTeXEntries = bibTeXEntries(in: referencesBibTeXString)
+                referencesEntries = referencesBibTeXEntries
+            }
+            
+            if let glossaryBibTeXString = string.getString(between: VisualMetaTags.glossary) {
+                let glossaryBibTeXEntries = bibTeXEntries(in: glossaryBibTeXString)
+                glossaryEntries = glossaryBibTeXEntries
+            }
+            
+            if let endnotesBibTeXString = string.getString(between: VisualMetaTags.endnotes) {
+                let endnotesBibTeXEntries = self.bibTeXEntries(in: endnotesBibTeXString)
+                endnotesEntries = endnotesBibTeXEntries
+            }
+            
+            if let documentHeadingsBibTeXString = string.getString(between: VisualMetaTags.headings) {
+                let documentHeadingsBibTeXEntries = bibTeXEntries(in: documentHeadingsBibTeXString)
+                headingsEntries = documentHeadingsBibTeXEntries
+            }
+            
+//            let textHeadings = self.getTextHeadings(documentHeadingsBibTeXEntries: headingsEntries,
+//                                                    in: document)
+            
+//            let endnotesSelection = self.getEndnotesSelection(in: document,
+//                                                              and: textHeadings)
+            let glossary   = getGlossary(from: glossaryEntries)
+            let endnotes   = getEndnotes(from: endnotesEntries)
+            let references = getReferences(from: referencesEntries, indexes: indexes)
+            
+            let response: VisualMetaResponse = (nil,
+                                                bibtexEntry,
+                                                metaEntries,
+                                                nil,
+                                                glossary,
+                                                endnotes,
+                                                references)
+            completion(response)
+        }
+
+    }
+    
+    // test Method
+
+    public func parseAIMetadata(string: String) {
+        let dictionary = getContentDictionary(from: string)
+        print(dictionary)
+    }
+    
+    // test method
+    public func aiMetadataTag(string: String) {
+        
+        let startPartOfTag = "@{ai-"
+        let endPartOfTag   = "-start}"
+        
+        guard let midPartOfTag = string.slice(from: startPartOfTag, to: endPartOfTag) else { return }
+        
+        let startTag = startPartOfTag + midPartOfTag + endPartOfTag
+        let endTag   = startPartOfTag + midPartOfTag + "-end}"
+        
+        print(startTag)
+        print(endTag)
     }
 }

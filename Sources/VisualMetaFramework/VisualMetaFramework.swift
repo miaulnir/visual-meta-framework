@@ -8,7 +8,8 @@ public typealias VisualMetaResponse = (visualMetaSelection: PDFSelection?,
                                        endnotes: Endnotes?,
                                        references: References?)
 
-public typealias AIMetadataResponse = (selection: PDFSelection?,
+public typealias AIMetadataResponse = (tag: String?,
+                                       selection: PDFSelection?,
                                        metaEntries: [String: Any])
 
 /// VisualMeta Framework
@@ -557,19 +558,8 @@ public class VMF {
     
     // MARK: - AI Metadata Methods -
     
-    // testing
     public func parseAIMetadata(document: PDFDocument, completion: @escaping ([AIMetadataResponse]) -> ())  {
-        
-        // gets selections
-        
-        // remove selection with duplicate pages
-        // get pages
-        
-        // call fo each pages search selection
-        // get string from selections
-        // parse string
-        // get meta entriens
-        
+    
         DispatchQueue.global(qos: .userInitiated).async { [weak self] in
             
             guard let self = self else {
@@ -582,13 +572,14 @@ public class VMF {
             let aiSelections = self.aiMetadataSelections(document: document)
             
             for aiSelection in aiSelections {
-                
-                if let string = aiSelection.string {
+                if let page = aiSelection.pages.first,
+                   let string = aiSelection.string {
+                    let tag = nameOfAITag(on: page)
                     let dictionary = self.getContentDictionary(from: string)
-                    result.append((aiSelection, dictionary))
+                    result.append((tag, aiSelection, dictionary))
                 }
             }
-            completion([])
+            completion(result)
         }
     }
     

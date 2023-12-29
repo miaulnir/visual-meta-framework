@@ -8,8 +8,8 @@ public typealias VisualMetaResponse = (visualMetaSelection: PDFSelection?,
                                        endnotes: Endnotes?,
                                        references: References?)
 
-public typealias AIMetadataResponse = (tag: String?,
-                                       selection: PDFSelection?,
+public typealias AIMetadataResponse = (tag: String,
+                                       selection: PDFSelection,
                                        metaEntries: [String: Any])
 
 /// VisualMeta Framework
@@ -573,8 +573,8 @@ public class VMF {
             
             for aiSelection in aiSelections {
                 if let page = aiSelection.pages.first,
-                   let string = aiSelection.string {
-                    let tag = nameOfAITag(on: page)
+                   let string = aiSelection.string, 
+                    let tag = nameOfAITag(on: page) {
                     let dictionary = self.getContentDictionary(from: string)
                     result.append((tag, aiSelection, dictionary))
                 }

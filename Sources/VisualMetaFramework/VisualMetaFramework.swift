@@ -258,12 +258,14 @@ public class VMF {
     private func visualMetaSelection(from document: PDFDocument) -> PDFSelection? {
         return visualMetaSelection(from: document,
                                    with: VisualMetaTags.visualMeta.startTag,
-                                   and: VisualMetaTags.visualMeta.endTag)
+                                   and: VisualMetaTags.visualMeta.endTag,
+                                   exceptions: true)
     }
     
     private func visualMetaSelection(from document: PDFDocument, 
                                      with startTag: String,
-                                     and endTag: String) -> PDFSelection? {
+                                     and endTag: String,
+                                     exceptions: Bool = false) -> PDFSelection? {
         
         var searchSelections: [PDFSelection] = []
         
@@ -278,11 +280,20 @@ public class VMF {
         
         for selection in searchSelections {
             if let trimmedString = selection.attributedString?.string.trimmingCharacters(in: .whitespacesAndNewlines) {
-                if trimmedString == startTag {
+                let startFlag = exceptions ? 
+                trimmedString == startTag || trimmedString == VisualMetaTags.visualMeta.startTagWithoutBrace :
+                trimmedString == startTag
+                
+                let endFlag = exceptions ? 
+                trimmedString == endTag || trimmedString == VisualMetaTags.visualMeta.endTagWithoutBrace :
+                trimmedString == endTag
+                
+                if  startFlag {
                     startSelection = selection
-                } else if trimmedString == endTag {
+                } else if endFlag {
                     endSelection   = selection
                 }
+                
                 if startSelection != nil && endSelection != nil {
                     break
                 }

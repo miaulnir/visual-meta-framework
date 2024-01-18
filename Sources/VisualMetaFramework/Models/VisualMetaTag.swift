@@ -23,9 +23,21 @@ public class VisualMetaTag: Equatable {
         }
     }
     
+    public var startTagWithoutBrace: String {
+        get {
+            return String(startTag.dropLast())
+        }
+    }
+    
     public var endTag: String {
         get {
             return preffix + tag + endSuffix
+        }
+    }
+    
+    public var endTagWithoutBrace: String {
+        get {
+            return String(endTag.dropLast())
         }
     }
     

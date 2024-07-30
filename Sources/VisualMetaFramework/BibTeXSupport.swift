@@ -105,7 +105,7 @@ public struct BibTeXSupport {
                     citationDictionary["issn"] = trimmedValue
                 }
                     
-                else if trimmedKey == "month",
+                else if trimmedKey == "monthComponent",
                     let monthComponent = BibTeXSupport.monthComponent(for: trimmedValue as String) {
                     citationDictionary["monthComponent"] = monthComponent
                 }
@@ -144,7 +144,7 @@ public struct BibTeXSupport {
                     citationDictionary["volume"] = trimmedValue
                 }
                     
-                else if trimmedKey == "year",
+                else if trimmedKey == "yearComponent",
                     let yearComponent = BibTeXSupport.yearComponent(for: trimmedValue as String) {
                     citationDictionary["yearComponent"] = yearComponent
                 }

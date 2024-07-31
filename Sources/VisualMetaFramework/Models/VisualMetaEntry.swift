@@ -40,6 +40,9 @@ public struct VisualMetaEntry {
         self.kind = kind
         self.content = content
         self.rawValue = rawValue
+        if BibTeXSupport.EntryType.allCases.map({$0.rawValue}).contains(kind) {
+            self.content["bibTeXType"] = kind
+        }
     }
     
     public func isDifferentBibTeX(by anotherBibTeX: VisualMetaEntry) -> Bool {

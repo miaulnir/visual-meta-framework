@@ -15,21 +15,7 @@ public struct VisualMetaEntry {
     public var rawValue: String
     
     public var isBibTeX: Bool {
-        kind == "article" ||
-        kind == "book" ||
-        kind == "booklet" ||
-        kind == "conference" ||
-        kind == "inbook" ||
-        kind == "incollection" ||
-        kind == "inproceedings" ||
-        kind == "manual" ||
-        kind == "mastersthesis" ||
-        kind == "misc" ||
-        kind == "paper" ||
-        kind == "phdthesis" ||
-        kind == "proceedings" ||
-        kind == "techreport" ||
-        kind == "unpublished"
+        return BibTeXSupport.EntryType.allCases.map({$0.rawValue}).contains(kind)
     }
     
     public var isHeadingsJSON: Bool { kind == "headings" }

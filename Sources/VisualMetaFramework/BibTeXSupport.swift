@@ -9,6 +9,23 @@ import Foundation
 
 public struct BibTeXSupport {
     
+    public enum EntryType: String, CaseIterable {
+        case article
+        case book
+        case booklet
+        case conference
+        case inbook
+        case incollection
+        case inproceedings
+        case manual
+        case masterthesis
+        case misc
+        case phdthesis
+        case proceedings
+        case techreport
+        case unpublished
+    }
+    
     public static func citationInfo(for bibTeXString: String) -> [String: Any]? {
         func _stringTrimming(string: String) -> String {
             let characterSet = CharacterSet(charactersIn: "= {},\"")

@@ -1,6 +1,7 @@
 enum VisualMetaTags {
     static let visualMeta      = VisualMetaTag("visual-meta")
     static let selfCitation    = VisualMetaTag("visual-meta-bibtex-self-citation")
+	static let fullText 	   = VisualMetaTag("visual-meta-full-document-text")
     static let referencesIndex = VisualMetaTag("references-index")
     static let reference       = VisualMetaTag("references")
     static let glossary        = VisualMetaTag("glossary")

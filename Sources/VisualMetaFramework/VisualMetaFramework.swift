@@ -2,6 +2,7 @@ import PDFKit
 
 public typealias VisualMetaResponse = (visualMetaSelection: PDFSelection?,
                                        bibtex: VisualMetaEntry?,
+									   fullText: VisualMetaEntry?,
                                        metaEntries: [VisualMetaEntry]?,
                                        headings: [TextHeading]?,
                                        glossary: Glossary?,
@@ -28,6 +29,7 @@ public class VMF {
             }
             
             var bibtexEntry: VisualMetaEntry?
+			var fullTextEntry: VisualMetaEntry?
             var referencesEntries = [String]()
             var glossaryEntries   = [String]()
             var endnotesEntries   = [String]()
@@ -49,6 +51,12 @@ public class VMF {
                     }
                 }
             }
+			
+			if let fullTextString = visualMetaString.getString(between: VisualMetaTags.fullText) {
+				if let metaEntry = self.visualMetaEntry(in: fullTextString, isGlossary: true) {
+					fullTextEntry = metaEntry
+				}
+			}
  
             if let referencesIndexesBibTeXString = visualMetaString.getString(between: VisualMetaTags.referencesIndex) {
                 let visualMeta = self.visualMetaEntry(in: referencesIndexesBibTeXString)
@@ -96,6 +104,7 @@ public class VMF {
             
             let response: VisualMetaResponse = (visualMetaSelection,
                                                 bibtexEntry,
+												fullTextEntry,
                                                 metaEntries,
                                                 textHeadings,
                                                 glossary,
@@ -653,6 +662,7 @@ public class VMF {
             }
             
             var bibtexEntry: VisualMetaEntry?
+			var fullTextEntry: VisualMetaEntry?
             var referencesEntries = [String]()
             var glossaryEntries   = [String]()
             var endnotesEntries   = [String]()
@@ -674,6 +684,12 @@ public class VMF {
                     }
                 }
             }
+			
+			if let fullTextString = string.getString(between: VisualMetaTags.fullText) {
+				if let metaEntry = visualMetaEntry(in: fullTextString, isGlossary: true) {
+					fullTextEntry = metaEntry
+				}
+			}
             
             if let referencesIndexesBibTeXString = string.getString(between: VisualMetaTags.referencesIndex) {
                 let visualMeta = visualMetaEntry(in: referencesIndexesBibTeXString)
@@ -713,6 +729,7 @@ public class VMF {
             
             let response: VisualMetaResponse = (nil,
                                                 bibtexEntry,
+												fullTextEntry,
                                                 metaEntries,
                                                 nil,
                                                 glossary,

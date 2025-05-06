@@ -435,7 +435,7 @@ public class VMF {
         var currentAttributedString: NSMutableAttributedString?
         
         for selection in selections {
-            guard let attributedString = selection.attributedString,
+			guard (selection.string ?? "").count > 0, let attributedString = selection.attributedString,
                   attributedString.length > 0 else { continue }
             var baselineRange: NSRange = NSRange(location: 0, length: 0)
             

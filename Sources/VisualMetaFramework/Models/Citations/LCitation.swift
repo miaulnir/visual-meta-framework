@@ -15,7 +15,7 @@ public class LACitation: LCitation {}
 
 public class LCitation: NSObject, NSCopying { // LACitation
     
-    enum LCitationFormat: String {
+    public enum LCitationFormat: String {
 
         case quoteMarks = "quotesNoName"
         case quotesWithNameAndYear = "quoteWithName"
@@ -198,7 +198,68 @@ public class LCitation: NSObject, NSCopying { // LACitation
         }
         return nil
     }
-    
+
+    public var pageIndex: Int? {
+        var pageIndex: Int?
+        let pageRange = pageRange
+        if !pageRange.isEmpty {
+            if let indexOfDash = pageRange.firstIndex(where: {$0 == "-"}) {
+                pageIndex = Int(pageRange.prefix(upTo: indexOfDash))
+            } else {
+                pageIndex = Int(pageRange)
+            }
+        }
+        if pageIndex != nil {
+            pageIndex! -= 1
+        }
+
+        return pageIndex
+    }
+
+    public var rawContentString: String?
+
+    public var contentString: String {
+        if webAddress.count > 0 && !webAddress.contains("play.google.com/books/") {
+            return LBibliographyManager.shared.harvardWebReference(for: self)
+        } else {
+            return LBibliographyManager.shared.harvardBookReference(for: self)
+        }
+    }
+
+    public var urlString: String? {
+        var hasASource = false
+        var availableString = ""
+
+        let doi = doi.trailingTrim(.whitespacesAndNewlines)
+        if !doi.isEmpty {
+            availableString = "https://www.doi.org/\(doi)"
+            hasASource = true
+        } else {
+            let webAddress = webAddress.trailingTrim(.whitespacesAndNewlines)
+            var hasGooglePlayBook = false
+            if webAddress.contains("https://play.google.com/books/") {
+                availableString = webAddress
+                hasASource = true
+                hasGooglePlayBook = true
+            }
+            if isVideo {
+                if availableString.count > 0 {
+                    availableString.append(" ")
+                }
+                availableString.append("[video] ")
+            }
+
+            if !hasGooglePlayBook {
+                if !webAddress.isEmpty {
+                    availableString = webAddress
+                    hasASource = true
+                }
+            }
+        }
+        if !hasASource { return nil }
+        return availableString
+    }
+
     public func plist() -> [String : Any] {
         var plist = [String : Any]()
 
@@ -395,7 +456,8 @@ public class LCitation: NSObject, NSCopying { // LACitation
         dayComponent   = LCitation.int(for: "dayComponent", in: plist)
         yearComponent  = LCitation.int(for: "yearComponent", in: plist)
         monthComponent = LCitation.int(for: "monthComponent", in: plist)
-        
+        yearComponent  = LCitation.int(for: "yearComponent", in: plist)
+
         note         = LCitation.string(for: "note", in: plist)
         quote        = LCitation.string(for: "quote", in: plist)
         originalText = LCitation.string(for: "originalText", in: plist)
@@ -677,17 +739,11 @@ public class LCitation: NSObject, NSCopying { // LACitation
         return nil
     }
     
-    func creator(for format: LCitationFormat) -> String? {
+    public func creator(for format: LCitationFormat) -> String? {
         if isAnonymous {
             return NSLocalizedString("Anon", comment: "Anonymous author name")
-        } else if format == .attachment,
-                  let localizedLastNames = authorCollection.localizedLastNames {
+        } else if let localizedLastNames = authorCollection.localizedFirstAndLastNamesShort {
             return localizedLastNames
-        } else if format == .blockQuoteWithName,
-                  let localizedFirstAndLastNames = authorCollection.localizedFirstAndLastNames {
-            return localizedFirstAndLastNames
-        } else if let formattedLastNames = authorCollection.formattedLastNames {
-            return formattedLastNames
         } else if (webAddress.count > 0),
                   let url = URL(string: webAddress),
                   let host = url.host {
@@ -855,7 +911,7 @@ public class LCitation: NSObject, NSCopying { // LACitation
         return convertedFont
     }
     
-    static func contentAttributedString(for format: LCitationFormat,
+    public static func contentAttributedString(for format: LCitationFormat,
                                                with attributedString: NSAttributedString) -> NSAttributedString {
         let mutableAttributedString = NSMutableAttributedString(attributedString: attributedString)
         
@@ -888,7 +944,7 @@ public class LCitation: NSObject, NSCopying { // LACitation
         return mutableAttributedString
     }
     
-    static func attributedStringRemoving(format: LCitationFormat,
+    public static func attributedStringRemoving(format: LCitationFormat,
                                                 with attributedString: NSAttributedString) -> NSAttributedString {
         let mutableAttributedString = NSMutableAttributedString(attributedString: attributedString)
         
@@ -910,11 +966,11 @@ public class LCitation: NSObject, NSCopying { // LACitation
     }
 #endif
     
-    var isAmazon: Bool {
+    public var isAmazon: Bool {
         return creationSource == "amazon"
     }
     
-    var isVideo: Bool {
+    public  var isVideo: Bool {
         return creationSource == "youtube"
     }
     

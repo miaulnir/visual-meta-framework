@@ -484,7 +484,7 @@ public class VMF {
     }
     
     private func getReferences(from referenceEntries: [String], indexes: [Int]? = nil) -> References {
-        var referenceEntriesDict: [String: ReferenceEntry] = [:]
+        var referenceEntriesDict: [String: LCitation] = [:]
         
         for (index, reference) in referenceEntries.enumerated() {
             var identifier = ""
@@ -494,49 +494,18 @@ public class VMF {
             } else {
                 identifier = "\(index + 1)"
             }
-            referenceEntriesDict[identifier] = ReferenceEntry(identifier: identifier,
-                                                              content: NSAttributedString(string: reference))
-            
+//            referenceEntriesDict[identifier] = LCitation(identifier: identifier,
+//                                                              content: NSAttributedString(string: reference))
+            var _citation = LCitation()
+            _citation.identifier = identifier
+            _citation.rawContentString = reference
+            referenceEntriesDict[identifier] = _citation
+
             if let citationInfo = BibTeXSupport.citationInfo(for: reference) {
                 let citation = LCitation(with: citationInfo)
-                
-                // Work with page index --
-                var pageIndex: Int?
-                let pageRange = citation.pageRange
-                if !pageRange.isEmpty {
-                    if let indexOfDash = pageRange.firstIndex(where: {$0 == "-"}) {
-                        pageIndex = Int(citation.pageRange.prefix(upTo: indexOfDash))
-                    } else {
-                        pageIndex = Int(citation.pageRange)
-                    }
-                }
-                if pageIndex != nil {
-                    pageIndex! -= 1
-                }
-                
-                // -----------------------
-                
-                let urlString = getUrlString(citation: citation)
-                if citation.webAddress.count > 0 && !citation.webAddress.contains("play.google.com/books/") {
-                    
-                    let formattedString = LBibliographyManager.shared.harvardWebReference(for: citation)
-                    referenceEntriesDict[identifier] = ReferenceEntry(identifier: identifier,
-                                                                      content: NSAttributedString(string: formattedString),
-                                                                      filename: citation.filename,
-                                                                      title: citation.title,
-                                                                      urlString: urlString,
-                                                                      quote: citation.quote,
-                                                                      pageIndex: pageIndex)
-                } else {
-                    let formattedString = LBibliographyManager.shared.harvardBookReference(for: citation)
-                    referenceEntriesDict[identifier] = ReferenceEntry(identifier: identifier,
-                                                                      content: NSAttributedString(string: formattedString),
-                                                                      filename: citation.filename,
-                                                                      title: citation.title,
-                                                                      urlString: urlString,
-                                                                      quote: citation.quote,
-                                                                      pageIndex: pageIndex)
-                }
+                citation.identifier = identifier
+
+                referenceEntriesDict[identifier] = citation
             }
         }
         return References(with: referenceEntriesDict, labelAttributedString: NSAttributedString())

@@ -1,16 +1,16 @@
 import Foundation
 
 public struct References {
-    private let referenceEntries: [String : ReferenceEntry]
+    private let referenceEntries: [String : LCitation]
     public let labelAttributedString   : NSAttributedString
     
-    public init(with referenceEntries: [String : ReferenceEntry],
+    public init(with referenceEntries: [String : LCitation],
                 labelAttributedString: NSAttributedString) {
         self.referenceEntries      = referenceEntries
         self.labelAttributedString = labelAttributedString
     }
     
-    public func referenceEntry(with identifier: String) -> ReferenceEntry? {
+    public func referenceEntry(with identifier: String) -> LCitation? {
         return referenceEntries[identifier]
     }
     

@@ -165,7 +165,12 @@ public struct BibTeXSupport {
                     let yearComponent = BibTeXSupport.yearComponent(for: trimmedValue as String) {
                     citationDictionary["yearComponent"] = yearComponent
                 }
-                    
+
+                else if trimmedKey == "year",
+                    let yearComponent = BibTeXSupport.yearComponent(for: trimmedValue as String) {
+                    citationDictionary["yearComponent"] = yearComponent
+                }
+
                 else if trimmedKey == "series" || key.contains("series =") {
                     citationDictionary["series"] = trimmedValue
                 }

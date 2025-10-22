@@ -182,7 +182,20 @@ public final class CitationAuthorCollection: NSObject {
         }
         set {}
     }
-    
+
+    @objc public dynamic var localizedFirstAndLastNamesShort: String? {
+        get {
+            var authorNames: [String] = []
+            for author in authors {
+                if let fullName = author.firstAndLastShort {
+                    authorNames.append(fullName)
+                }
+            }
+            return authorNames.joined(separator: ", ")
+        }
+        set {}
+    }
+
     @objc public dynamic var localizedLastNames: String? {
         get {
             var authorNames: [String] = []

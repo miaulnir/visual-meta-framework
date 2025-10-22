@@ -127,13 +127,33 @@ public final class CitationAuthor : NSObject {
         
         personNameComponents.givenName  = firstName
         personNameComponents.familyName = lastName
-        
-        let personName = nameFormatter.string(from: personNameComponents)
-        
+
+        let personName = PersonNameComponentsFormatter.localizedString(from: personNameComponents, style: .long)
+
         if !personName.isEmpty {
             return personName
         }
         
+        return nil
+    }
+
+    public var firstAndLastShort: String? {
+        var personNameComponents = PersonNameComponents()
+
+
+        personNameComponents.familyName = lastName
+
+        nameFormatter.style = .short
+
+        let personName = PersonNameComponentsFormatter.localizedString(from: personNameComponents, style: .long)
+
+        if !personName.isEmpty {
+            if let firstName, !firstName.isEmpty {
+                return personName + ", " + firstName.prefix(1) + "."
+            }
+            return personName
+        }
+
         return nil
     }
 }

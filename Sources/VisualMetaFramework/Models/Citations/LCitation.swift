@@ -10,10 +10,7 @@ import UIKit
 //    return dateFormatter
 //}()
 
-@available(*, deprecated, renamed: "LCitation")
-public class LACitation: LCitation {}
-
-public class LCitation: NSObject, NSCopying { // LACitation
+public class LCitation: NSObject, NSCopying {
     
     public enum LCitationFormat: String {
 
@@ -45,12 +42,14 @@ public class LCitation: NSObject, NSCopying { // LACitation
     
     public enum AvailableKeysForBibtex: String, CaseIterable {
         
-        case creationSource, title, filename, author, url, source, day, year, month, note, quote, originalText, location, publisher, publication, issue, isbn, asin, doi, DOI, issn, pubMed, arXiv, volume, series, editor, journal, pageRangeStart, pageRangeEnd, pageRange, pages
+        case creationSource, title, abstract, annotation, filename, author, url, source, day, year, month, note, quote, originalText, location, publisher, publication, issue, isbn, asin, doi, DOI, issn, pubMed, arXiv, volume, series, editor, journal, pageRangeStart, pageRangeEnd, pageRange, pages
     }
     
     @objc public var identifier = UUID().uuidString
     
     @objc public dynamic var title = ""
+    @objc public dynamic var abstract = ""
+    @objc public dynamic var annotation = ""
     @objc public dynamic var filename: String?
     @objc public dynamic var author: String?
     @objc public dynamic var authors: [String] = []
@@ -67,7 +66,8 @@ public class LCitation: NSObject, NSCopying { // LACitation
     @objc public dynamic var dayComponent: Int = -1
     @objc public dynamic var monthComponent: Int = -1
     @objc public dynamic var yearComponent: Int = -1
-    
+    @objc public dynamic var eraComponent: Int = 0  // 0 is CE, -1 is BCE
+
     @objc public dynamic var note = ""
     @objc public dynamic var quote = ""
     @objc public dynamic var originalText = ""
@@ -265,6 +265,8 @@ public class LCitation: NSObject, NSCopying { // LACitation
 
         plist["identifier"] = identifier
         plist["title"]      = title
+        plist["abstract"] = abstract
+        plist["annotation"] = annotation
         plist["filename"]   = filename
         plist["author"]     = author
         plist["authors"]    = authors
@@ -298,7 +300,8 @@ public class LCitation: NSObject, NSCopying { // LACitation
         plist["dayComponent"] = dayComponent
         plist["yearComponent"] = yearComponent
         plist["monthComponent"] = monthComponent
-        
+        plist["eraComponent"] = eraComponent
+
         plist["note"] = note
         plist["quote"] = quote
         plist["originalText"] = originalText
@@ -347,6 +350,8 @@ public class LCitation: NSObject, NSCopying { // LACitation
         
         copy.identifier      = identifier
         copy.title           = title
+        copy.abstract = abstract
+        copy.annotation = annotation
         copy.filename        = filename
         copy.author          = author
         copy.authors         = authors
@@ -364,7 +369,8 @@ public class LCitation: NSObject, NSCopying { // LACitation
         copy.dayComponent   = dayComponent
         copy.yearComponent  = yearComponent
         copy.monthComponent = monthComponent
-        
+        copy.eraComponent = eraComponent
+
         copy.note         = note
         copy.quote        = quote
         copy.originalText = originalText
@@ -414,7 +420,9 @@ public class LCitation: NSObject, NSCopying { // LACitation
         title = LCitation.string(for: "title", in: plist)
         filename = LCitation.string(for: "filename", in: plist)
         author = plist["author"] as? String
-        
+        abstract = LCitation.string(for: "abstract", in: plist)
+        annotation = LCitation.string(for: "annotation", in: plist)
+
         if let authorsArray = plist["authors"] as? [String] {
             authors = authorsArray
         } else {
@@ -457,6 +465,7 @@ public class LCitation: NSObject, NSCopying { // LACitation
         yearComponent  = LCitation.int(for: "yearComponent", in: plist)
         monthComponent = LCitation.int(for: "monthComponent", in: plist)
         yearComponent  = LCitation.int(for: "yearComponent", in: plist)
+        eraComponent = LCitation.optionalInt(for: "eraComponent", in: plist) ?? 0
 
         note         = LCitation.string(for: "note", in: plist)
         quote        = LCitation.string(for: "quote", in: plist)
@@ -517,7 +526,15 @@ public class LCitation: NSObject, NSCopying { // LACitation
             if !title.isEmpty {
                 bibTexString.append(" title = {\(title)},¶\n")
             }
-            
+
+            if !abstract.isEmpty {
+                bibTexString.append(" abstract = {\(abstract)},\n")
+            }
+
+            if !annotation.isEmpty {
+                bibTexString.append(" annotation = {\(annotation)},\n")
+            }
+
             if let filename = filename, !filename.isEmpty {
                 bibTexString.append(" filename = {\(filename)},¶\n")
             }
@@ -881,7 +898,11 @@ public class LCitation: NSObject, NSCopying { // LACitation
         
         return -1
     }
-    
+
+    static func optionalInt(for key: String, in plist: [AnyHashable: Any]) -> Int? {
+        return plist[key] as? Int
+    }
+
     static func bool(for key: String, in plist: [AnyHashable: Any]) -> Bool {
         if let value = plist[key] as? Bool {
             return value

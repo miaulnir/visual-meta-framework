@@ -80,8 +80,8 @@ public struct BibTeXSupport {
             }
             
             var valueString: NSString?
-            keyValueScanner.scanUpTo("\n", into: &valueString)
-            
+            keyValueScanner.scanUpTo(",\n", into: &valueString)
+
             if let key = keyString, let value = valueString {
                 let trimmedKey = _stringTrimming(string: key as String)
                 let trimmedValue = _stringTrimming(string: value as String)

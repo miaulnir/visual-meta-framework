@@ -32,7 +32,7 @@ public struct BibTeXSupport {
             return string.trimmingCharacters(in: characterSet)
         }
         
-        let adjustedString = bibTeXString.replacingOccurrences(of: "},", with: "},\n")
+        var adjustedString = bibTeXString.replacingOccurrences(of: "},", with: "},\n")
         let scanner = Scanner(string: adjustedString)
         
         var string: NSString?
@@ -58,7 +58,7 @@ public struct BibTeXSupport {
         
         //scanner.scanUpTo("\n", into: &string)
         
-        
+        adjustedString = adjustedString.replacingOccurrences(of: "\n\n", with: "\n¶")
         let entries = adjustedString.getSuffix(after: "{").components(separatedBy: "¶")
 //        var entries = [String]()
 //

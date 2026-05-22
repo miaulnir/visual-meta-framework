@@ -89,6 +89,10 @@ public struct BibTeXSupport {
                 if trimmedKey == "address" || key.contains("address =") {
                     citationDictionary["location"] = trimmedValue
                 }
+                
+                else if trimmedKey == "abstract" || key.contains("abstract =") {
+                    citationDictionary["abstract"] = trimmedValue
+                }
                     
                 else if trimmedKey == "author" || key.contains("author =") {
                     citationDictionary["citationAuthors"] = BibTeXSupport.citationAuthors(for: trimmedValue)

@@ -3,6 +3,7 @@ import AppKit
 #else
 import UIKit
 #endif
+import Foundation
 
 //fileprivate let harvardDateFormatter: DateFormatter = {
 //    let dateFormatter = DateFormatter()
@@ -229,8 +230,9 @@ public class LCitation: NSObject, NSCopying {
     public var urlString: String? {
         var hasASource = false
         var availableString = ""
-
-        let doi = doi.trailingTrim(.whitespacesAndNewlines)
+        
+        let doi = cleanDOI ?? ""
+        
         if !doi.isEmpty {
             availableString = "https://www.doi.org/\(doi)"
             hasASource = true
@@ -259,7 +261,31 @@ public class LCitation: NSObject, NSCopying {
         if !hasASource { return nil }
         return availableString
     }
-
+    
+    public var cleanDOI: String? {
+        let doi = doi.trailingTrim(.whitespacesAndNewlines)
+        
+        guard
+            let regex = try? NSRegularExpression(pattern: "10\\.\\d+\\/.+"),
+            let match = regex.firstMatch(in: doi, options: [], range: NSRange(location: 0, length: doi.count))
+        else {
+            return nil
+        }
+        
+        return (doi as NSString).substring(with: match.range)
+    }
+    
+    public var cleanFullDOI: String? {
+        guard
+            let doi = cleanDOI,
+            !doi.isEmpty
+        else {
+            return nil
+        }
+        
+        return "https://www.doi.org/" + doi
+    }
+    
     public func plist() -> [String : Any] {
         var plist = [String : Any]()
 

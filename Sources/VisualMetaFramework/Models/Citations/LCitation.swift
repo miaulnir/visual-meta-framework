@@ -228,38 +228,35 @@ public class LCitation: NSObject, NSCopying {
     }
 
     public var urlString: String? {
-        var hasASource = false
-        var availableString = ""
+        // TODO:
         
-        let doi = cleanDOI ?? ""
+        if let cleanFullDOI {
+            return cleanFullDOI
+        }
         
-        if !doi.isEmpty {
-            availableString = "https://www.doi.org/\(doi)"
-            hasASource = true
-        } else {
-            let webAddress = webAddress.trailingTrim(.whitespacesAndNewlines)
-            var hasGooglePlayBook = false
-            if webAddress.contains("https://play.google.com/books/") {
-                availableString = webAddress
-                hasASource = true
-                hasGooglePlayBook = true
+        var webAddress = webAddress
+        
+        if isVideo {
+            if !webAddress.isEmpty {
+                webAddress.append(" ")
             }
-            if isVideo {
-                if availableString.count > 0 {
-                    availableString.append(" ")
-                }
-                availableString.append("[video] ")
-            }
-
-            if !hasGooglePlayBook {
-                if !webAddress.isEmpty {
-                    availableString = webAddress
-                    hasASource = true
-                }
+            
+            webAddress.append("[video]")
+        }
+        
+        if !webAddress.isEmpty {
+            return webAddress
+        }
+        
+        var search = "https://www.google.com/search?q="+title
+        
+        for citationAuthor in citationAuthors {
+            if let name = citationAuthor.firstAndLast {
+                search.append("%%20"+name)
             }
         }
-        if !hasASource { return nil }
-        return availableString
+        
+        return search
     }
     
     public var cleanDOI: String? {

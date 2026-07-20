@@ -487,13 +487,12 @@ public class VMF {
         var referenceEntriesDict: [String: LCitation] = [:]
         
         for (index, reference) in referenceEntries.enumerated() {
-            var identifier = ""
-            if let indexes = indexes,
-                let intIndex = indexes[safe:index] {
-                identifier = "\(intIndex + 1)"
-            } else {
-                identifier = "\(index + 1)"
-            }
+//            var identifier = ""
+//            if let indexes = indexes, let intIndex = indexes.firstIndex(where: { $0 == index }) {
+//                identifier = "\(intIndex + 1)"
+//            } else {
+            let identifier = "\(index + 1)"
+//            }
 //            referenceEntriesDict[identifier] = LCitation(identifier: identifier,
 //                                                              content: NSAttributedString(string: reference))
             var _citation = LCitation()

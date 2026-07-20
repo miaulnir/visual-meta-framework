@@ -228,8 +228,6 @@ public class LCitation: NSObject, NSCopying {
     }
 
     public var urlString: String? {
-        // TODO:
-        
         if let cleanFullDOI {
             return cleanFullDOI
         }
@@ -252,7 +250,7 @@ public class LCitation: NSObject, NSCopying {
         
         for citationAuthor in citationAuthors {
             if let name = citationAuthor.firstAndLast {
-                search.append("%%20"+name)
+                search.append("+"+name)
             }
         }
         
